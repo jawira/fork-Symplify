@@ -6,10 +6,10 @@ namespace Symplify\CodingStandard\Tests\Rules\ForbiddenComplexArrayConfigInSetRu
 
 use Iterator;
 use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 use Symplify\CodingStandard\Rules\ForbiddenComplexArrayConfigInSetRule;
+use Symplify\PHPStanExtensions\Testing\AbstractServiceAwareRuleTestCase;
 
-final class ForbiddenComplexArrayConfigInSetRuleTest extends RuleTestCase
+final class ForbiddenComplexArrayConfigInSetRuleTest extends AbstractServiceAwareRuleTestCase
 {
     /**
      * @dataProvider provideData()
@@ -28,6 +28,9 @@ final class ForbiddenComplexArrayConfigInSetRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new ForbiddenComplexArrayConfigInSetRule();
+        return $this->getRuleFromConfig(
+            ForbiddenComplexArrayConfigInSetRule::class,
+            __DIR__ . '/../../../config/symplify-rules.neon'
+        );
     }
 }

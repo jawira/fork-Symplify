@@ -28,7 +28,7 @@ final class SymplifyErrorFormatter implements ErrorFormatter
     /**
      * @var string
      */
-    private const FILE_WITH_TRAIT_CONTEXT_PATTERN = '#(?<file>.*?)(\s+\(in context.*?)?$#';
+    private const FILE_WITH_TRAIT_CONTEXT_REGEX = '#(?<file>.*?)(\s+\(in context.*?)?$#';
 
     /**
      * @var SymfonyStyle
@@ -107,7 +107,7 @@ final class SymplifyErrorFormatter implements ErrorFormatter
     private function getRelativePath(string $filePath): string
     {
         // remove trait clutter
-        $clearFilePath = Strings::replace($filePath, self::FILE_WITH_TRAIT_CONTEXT_PATTERN, '$1');
+        $clearFilePath = Strings::replace($filePath, self::FILE_WITH_TRAIT_CONTEXT_REGEX, '$1');
         if (! file_exists($clearFilePath)) {
             return $clearFilePath;
         }
@@ -170,13 +170,13 @@ final class SymplifyErrorFormatter implements ErrorFormatter
      */
     private function printMultiFileErrors(string $message, array $errors): void
     {
-        $this->writeln('-');
-        $this->writeln("    message: '" . $this->regexMessage($message) . "'");
-        $this->writeln('    paths:');
+        $this->writeln('    -');
+        $this->writeln("        message: '" . $this->regexMessage($message) . "'");
+        $this->writeln('        paths:');
 
         foreach ($errors as $error) {
             $relativeFilePath = $this->createFileMessage($error);
-            $this->writeln('        - ' . $relativeFilePath);
+            $this->writeln('            - ' . $relativeFilePath);
         }
 
         $this->symfonyStyle->newLine();

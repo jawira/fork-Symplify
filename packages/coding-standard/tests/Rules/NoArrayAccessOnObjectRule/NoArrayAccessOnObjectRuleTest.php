@@ -6,10 +6,10 @@ namespace Symplify\CodingStandard\Tests\Rules\NoArrayAccessOnObjectRule;
 
 use Iterator;
 use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 use Symplify\CodingStandard\Rules\NoArrayAccessOnObjectRule;
+use Symplify\PHPStanExtensions\Testing\AbstractServiceAwareRuleTestCase;
 
-final class NoArrayAccessOnObjectRuleTest extends RuleTestCase
+final class NoArrayAccessOnObjectRuleTest extends AbstractServiceAwareRuleTestCase
 {
     /**
      * @dataProvider provideData()
@@ -31,6 +31,9 @@ final class NoArrayAccessOnObjectRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new NoArrayAccessOnObjectRule();
+        return $this->getRuleFromConfig(
+            NoArrayAccessOnObjectRule::class,
+            __DIR__ . '/../../../config/symplify-rules.neon'
+        );
     }
 }

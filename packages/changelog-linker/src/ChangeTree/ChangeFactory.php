@@ -9,6 +9,8 @@ use Symplify\ChangelogLinker\ChangeTree\Resolver\CategoryResolver;
 use Symplify\ChangelogLinker\ChangeTree\Resolver\PackageResolver;
 use Symplify\ChangelogLinker\Git\GitCommitDateTagResolver;
 use Symplify\ChangelogLinker\ValueObject\ChangeTree\Change;
+use Symplify\ChangelogLinker\ValueObject\Option;
+use Symplify\PackageBuilder\Parameter\ParameterProvider;
 
 /**
  * @see \Symplify\ChangelogLinker\Tests\ChangeTree\ChangeFactory\ChangeFactoryTest
@@ -18,7 +20,7 @@ final class ChangeFactory
     /**
      * @var string
      */
-    private const ASTERISK_PATTERN = '#(\*)#';
+    private const ASTERISK_REGEX = '#(\*)#';
 
     /**
      * @var string[]
@@ -40,18 +42,15 @@ final class ChangeFactory
      */
     private $packageResolver;
 
-    /**
-     * @param string[] $authorsToIgnore
-     */
     public function __construct(
         GitCommitDateTagResolver $gitCommitDateTagResolver,
         CategoryResolver $categoryResolver,
         PackageResolver $packageResolver,
-        array $authorsToIgnore
+        ParameterProvider $parameterProvider
     ) {
         $this->gitCommitDateTagResolver = $gitCommitDateTagResolver;
         $this->categoryResolver = $categoryResolver;
-        $this->authorsToIgnore = $authorsToIgnore;
+        $this->authorsToIgnore = $parameterProvider->provideArrayParameter(Option::AUTHORS_TO_IGNORE);
         $this->packageResolver = $packageResolver;
     }
 
@@ -83,7 +82,7 @@ final class ChangeFactory
     {
         $content = trim($content);
 
-        return Strings::replace($content, self::ASTERISK_PATTERN, '\\\$1');
+        return Strings::replace($content, self::ASTERISK_REGEX, '\\\$1');
     }
 
     private function resolveMessageWithoutPackage(string $message, ?string $package): string
@@ -93,6 +92,6 @@ final class ChangeFactory
         }
 
         // can be aliased (not the $package variable), so we need to check any naming
-        return Strings::replace($message, PackageResolver::PACKAGE_NAME_PATTERN);
+        return Strings::replace($message, PackageResolver::PACKAGE_NAME_REGEX);
     }
 }

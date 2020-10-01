@@ -6,10 +6,10 @@ namespace Symplify\CodingStandard\Tests\Rules\MatchingTypeConstantRule;
 
 use Iterator;
 use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 use Symplify\CodingStandard\Rules\MatchingTypeConstantRule;
+use Symplify\PHPStanExtensions\Testing\AbstractServiceAwareRuleTestCase;
 
-final class MatchingTypeConstantRuleTest extends RuleTestCase
+final class MatchingTypeConstantRuleTest extends AbstractServiceAwareRuleTestCase
 {
     /**
      * @dataProvider provideData()
@@ -29,6 +29,9 @@ final class MatchingTypeConstantRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new MatchingTypeConstantRule();
+        return $this->getRuleFromConfig(
+            MatchingTypeConstantRule::class,
+            __DIR__ . '/../../../config/symplify-rules.neon'
+        );
     }
 }

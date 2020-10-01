@@ -6,10 +6,10 @@ namespace Symplify\CodingStandard\Tests\Rules\ForbiddenArrayWithStringKeysRule;
 
 use Iterator;
 use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 use Symplify\CodingStandard\Rules\ForbiddenArrayWithStringKeysRule;
+use Symplify\PHPStanExtensions\Testing\AbstractServiceAwareRuleTestCase;
 
-final class ForbiddenArrayWithStringKeysRuleTest extends RuleTestCase
+final class ForbiddenArrayWithStringKeysRuleTest extends AbstractServiceAwareRuleTestCase
 {
     /**
      * @dataProvider provideData()
@@ -35,6 +35,9 @@ final class ForbiddenArrayWithStringKeysRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new ForbiddenArrayWithStringKeysRule();
+        return $this->getRuleFromConfig(
+            ForbiddenArrayWithStringKeysRule::class,
+            __DIR__ . '/../../../config/symplify-rules.neon'
+        );
     }
 }

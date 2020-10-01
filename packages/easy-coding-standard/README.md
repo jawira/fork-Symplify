@@ -6,11 +6,11 @@
 
 ## Features
 
-- Use [PHP_CodeSniffer || PHP-CS-Fixer](https://www.tomasvotruba.com/blog/2017/05/03/combine-power-of-php-code-sniffer-and-php-cs-fixer-in-3-lines/) - anything you like
+- Use [PHP_CodeSniffer || PHP-CS-Fixer](https://tomasvotruba.com/blog/2017/05/03/combine-power-of-php-code-sniffer-and-php-cs-fixer-in-3-lines/) - anything you like
 - **2nd run under few seconds** with un-changed file cache
-- [Skipping files](#ignore-what-you-cant-fix) for specific checkers
-- [Prepared sets](#use-prepared-checker-sets) - PSR12, Symfony, Common, Array, Symplify and more...
-- Use [Prefixed version](https://github.com/symplify/easy-coding-standard-prefixed) to prevent conflicts on install
+- Skipping files for specific checkers
+- Prepared sets - PSR12, Symfony, Common, Array, Symplify and more...
+- [Prefixed version](https://github.com/symplify/easy-coding-standard-prefixed) in case of conflicts on install
 
 Are you already using another tool?
 
@@ -79,25 +79,7 @@ How to load own config?
 vendor/bin/ecs check src --config another-config.php
 ```
 
-### Codings Standards in Markdown
-
-How to correct PHP snippets in Markdown files?
-
-```bash
-vendor/bin/ecs check-markdown README.md
-vendor/bin/ecs check-markdown README.md docs/rules.md
-
-# to fix them, add --fix
-vendor/bin/ecs check-markdown README.md docs/rules.md --fix
-```
-
-Do you have already paths defined in `ecs.php` config? Drop them from CLI and let ECS use those:
-
-```bash
-vendor/bin/ecs check-markdown --fix
-```
-
-### Extended Configuration
+## Configuration
 
 Configuration can be extended with many options. Here is list of them with example values and little description what are they for:
 
@@ -134,13 +116,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             # or multiple files by path to match against "fnmatch()"
             __DIR__ . '/packages/*/src/Command',
         ],
-
         // skip rule compeltely
         ArraySyntaxFixer::class => null,
-
         // just single one part of the rule?
         ArraySyntaxFixer::class . '.SomeSingleOption' => null,
-
         // ignore specific error message
         'Cognitive complexity for method "addAction" is 13 but has to be less than or equal to 8.' => null,
     ]);
@@ -164,16 +143,36 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 };
 ```
 
-### FAQ
+## Codings Standards in Markdown
 
-#### How can I see all loaded checkers?
+![ECS-Run](docs/check_markdown.gif)
+
+How to correct PHP snippets in Markdown files?
+
+```bash
+vendor/bin/ecs check-markdown README.md
+vendor/bin/ecs check-markdown README.md docs/rules.md
+
+# to fix them, add --fix
+vendor/bin/ecs check-markdown README.md docs/rules.md --fix
+```
+
+Do you have already paths defined in `ecs.php` config? Drop them from CLI and let ECS use those:
+
+```bash
+vendor/bin/ecs check-markdown --fix
+```
+
+## FAQ
+
+### How can I see all loaded checkers?
 
 ```bash
 vendor/bin/ecs show
 vendor/bin/ecs show --config ...
 ```
 
-#### How do I clear cache?
+### How do I clear cache?
 
 ```bash
 vendor/bin/ecs check src --clear-cache
@@ -183,7 +182,7 @@ vendor/bin/ecs check src --clear-cache
 
 ### PHPStorm
 
-EasyCodingStandard can be used as an External Tool
+ECS can be used as an External Tool
 
 ![PHPStorm Configuration](docs/phpstorm-config.png)
 

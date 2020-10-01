@@ -16,7 +16,7 @@ final class RoutesProvider
     /**
      * @var string
      */
-    private const PARAMETERS_IN_ROUTE_PATTERN = '#\{(.*?)\}#sm';
+    private const PARAMETERS_IN_ROUTE_REGEX = '#\{(.*?)\}#sm';
 
     /**
      * @var RouterInterface
@@ -33,7 +33,8 @@ final class RoutesProvider
      */
     public function provide(): array
     {
-        return $this->router->getRouteCollection()->all();
+        return $this->router->getRouteCollection()
+            ->all();
     }
 
     /**
@@ -58,6 +59,6 @@ final class RoutesProvider
 
     private function hasRouteParameters(Route $route): bool
     {
-        return (bool) Strings::match($route->getPath(), self::PARAMETERS_IN_ROUTE_PATTERN);
+        return (bool) Strings::match($route->getPath(), self::PARAMETERS_IN_ROUTE_REGEX);
     }
 }

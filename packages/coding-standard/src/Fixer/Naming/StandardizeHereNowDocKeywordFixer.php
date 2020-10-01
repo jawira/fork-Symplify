@@ -34,7 +34,7 @@ final class StandardizeHereNowDocKeywordFixer extends AbstractSymplifyFixer impl
      * @see https://regex101.com/r/ED2b9V/1
      * @var string
      */
-    private const START_HEREDOC_NOWDOC_NAME_PATTERN = '#(<<<(\')?)(?<name>.*?)((\')?\s)#';
+    private const START_HEREDOC_NOWDOC_NAME_REGEX = '#(<<<(\')?)(?<name>.*?)((\')?\s)#';
 
     /**
      * @var string
@@ -78,14 +78,14 @@ final class StandardizeHereNowDocKeywordFixer extends AbstractSymplifyFixer impl
 
     private function fixStartToken(Tokens $tokens, Token $token, int $position): void
     {
-        $match = Strings::match($token->getContent(), self::START_HEREDOC_NOWDOC_NAME_PATTERN);
+        $match = Strings::match($token->getContent(), self::START_HEREDOC_NOWDOC_NAME_REGEX);
         if (! isset($match['name'])) {
             return;
         }
 
         $newContent = Strings::replace(
             $token->getContent(),
-            self::START_HEREDOC_NOWDOC_NAME_PATTERN,
+            self::START_HEREDOC_NOWDOC_NAME_REGEX,
             '$1' . $this->keyword . '$4'
         );
 
@@ -98,6 +98,14 @@ final class StandardizeHereNowDocKeywordFixer extends AbstractSymplifyFixer impl
             return;
         }
 
-        $tokens[$position] = new Token([$token->getId(), $this->keyword]);
+        $tokenContent = $token->getContent();
+        $trimmedTokenContent = trim($tokenContent);
+
+        $spaceEnd = '';
+        if (PHP_VERSION_ID >= 70300 && $tokenContent !== $trimmedTokenContent) {
+            $spaceEnd = substr($tokenContent, 0, strlen($tokenContent) - strlen($trimmedTokenContent));
+        }
+
+        $tokens[$position] = new Token([$token->getId(), $spaceEnd . $this->keyword]);
     }
 }

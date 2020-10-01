@@ -6,10 +6,10 @@ namespace Symplify\CodingStandard\Tests\Rules\NoInlineStringRegexRule;
 
 use Iterator;
 use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 use Symplify\CodingStandard\Rules\NoInlineStringRegexRule;
+use Symplify\PHPStanExtensions\Testing\AbstractServiceAwareRuleTestCase;
 
-final class NoInlineStringRegexRuleTest extends RuleTestCase
+final class NoInlineStringRegexRuleTest extends AbstractServiceAwareRuleTestCase
 {
     /**
      * @dataProvider provideData()
@@ -27,12 +27,17 @@ final class NoInlineStringRegexRuleTest extends RuleTestCase
             [[NoInlineStringRegexRule::ERROR_MESSAGE, 13]],
         ];
 
+        yield [__DIR__ . '/Fixture/SkipVariable.php', []];
+        yield [__DIR__ . '/Fixture/SkipSingleLetter.php', []];
         yield [__DIR__ . '/Fixture/SkipConstRegex.php', []];
         yield [__DIR__ . '/Fixture/SkipNetteUtilsStringsConstRegex.php', []];
     }
 
     protected function getRule(): Rule
     {
-        return new NoInlineStringRegexRule();
+        return $this->getRuleFromConfig(
+            NoInlineStringRegexRule::class,
+            __DIR__ . '/../../../config/symplify-rules.neon'
+        );
     }
 }

@@ -12,15 +12,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symplify\MonorepoBuilder\Split\Configuration\Option;
 use Symplify\MonorepoBuilder\Split\Configuration\RepositoryGuard;
 use Symplify\MonorepoBuilder\Split\PackageToRepositorySplitter;
+use Symplify\MonorepoBuilder\ValueObject\Option as BaseOption;
 use Symplify\PackageBuilder\Console\Command\CommandNaming;
 use Symplify\PackageBuilder\Console\ShellCode;
+use Symplify\PackageBuilder\Parameter\ParameterProvider;
 
 final class SplitCommand extends Command
 {
     /**
      * @var string
      */
-    private const ASTERISK_PATTERN = '#\*#';
+    private const ASTERISK_REGEX = '#\*#';
 
     /**
      * @var string
@@ -42,20 +44,20 @@ final class SplitCommand extends Command
      */
     private $packageToRepositorySplitter;
 
-    /**
-     * @param string[] $directoriesToRepositories
-     */
     public function __construct(
         RepositoryGuard $repositoryGuard,
-        array $directoriesToRepositories,
-        string $rootDirectory,
+        ParameterProvider $parameterProvider,
         PackageToRepositorySplitter $packageToRepositorySplitter
     ) {
         parent::__construct();
 
         $this->repositoryGuard = $repositoryGuard;
-        $this->directoriesToRepositories = $directoriesToRepositories;
-        $this->rootDirectory = $rootDirectory;
+
+        $this->directoriesToRepositories = $parameterProvider->provideArrayParameter(
+            BaseOption::DIRECTORIES_TO_REPOSITORIES
+        );
+        $this->rootDirectory = $parameterProvider->provideStringParameter(BaseOption::ROOT_DIRECTORY);
+
         $this->packageToRepositorySplitter = $packageToRepositorySplitter;
     }
 
@@ -134,7 +136,7 @@ final class SplitCommand extends Command
             foreach ((array) glob($directory) as $foundDirectory) {
                 /** @var string $foundDirectory */
                 $exclusiveName = Strings::after($foundDirectory, $patternWithoutAsterisk);
-                $targetRepository = Strings::replace($repository, self::ASTERISK_PATTERN, $exclusiveName);
+                $targetRepository = Strings::replace($repository, self::ASTERISK_REGEX, $exclusiveName);
 
                 $resolvedDirectoriesToRepository[$foundDirectory] = $targetRepository;
             }

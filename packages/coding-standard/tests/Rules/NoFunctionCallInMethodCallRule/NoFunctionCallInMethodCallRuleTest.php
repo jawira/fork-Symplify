@@ -6,10 +6,10 @@ namespace Symplify\CodingStandard\Tests\Rules\NoFunctionCallInMethodCallRule;
 
 use Iterator;
 use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 use Symplify\CodingStandard\Rules\NoFunctionCallInMethodCallRule;
+use Symplify\PHPStanExtensions\Testing\AbstractServiceAwareRuleTestCase;
 
-final class NoFunctionCallInMethodCallRuleTest extends RuleTestCase
+final class NoFunctionCallInMethodCallRuleTest extends AbstractServiceAwareRuleTestCase
 {
     /**
      * @dataProvider provideData()
@@ -30,6 +30,9 @@ final class NoFunctionCallInMethodCallRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new NoFunctionCallInMethodCallRule();
+        return $this->getRuleFromConfig(
+            NoFunctionCallInMethodCallRule::class,
+            __DIR__ . '/../../../config/symplify-rules.neon'
+        );
     }
 }

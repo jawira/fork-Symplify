@@ -6,10 +6,10 @@ namespace Symplify\CodingStandard\Tests\Rules\NoDefaultParameterValueRule;
 
 use Iterator;
 use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 use Symplify\CodingStandard\Rules\NoDefaultParameterValueRule;
+use Symplify\PHPStanExtensions\Testing\AbstractServiceAwareRuleTestCase;
 
-final class NoDefaultParameterValueRuleTest extends RuleTestCase
+final class NoDefaultParameterValueRuleTest extends AbstractServiceAwareRuleTestCase
 {
     /**
      * @dataProvider provideData()
@@ -27,6 +27,9 @@ final class NoDefaultParameterValueRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new NoDefaultParameterValueRule();
+        return $this->getRuleFromConfig(
+            NoDefaultParameterValueRule::class,
+            __DIR__ . '/../../../config/symplify-strict-rules.neon'
+        );
     }
 }

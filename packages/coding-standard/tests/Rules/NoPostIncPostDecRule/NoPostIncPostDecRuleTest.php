@@ -6,10 +6,10 @@ namespace Symplify\CodingStandard\Tests\Rules\NoPostIncPostDecRule;
 
 use Iterator;
 use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 use Symplify\CodingStandard\Rules\NoPostIncPostDecRule;
+use Symplify\PHPStanExtensions\Testing\AbstractServiceAwareRuleTestCase;
 
-final class NoPostIncPostDecRuleTest extends RuleTestCase
+final class NoPostIncPostDecRuleTest extends AbstractServiceAwareRuleTestCase
 {
     /**
      * @dataProvider provideData()
@@ -27,6 +27,9 @@ final class NoPostIncPostDecRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new NoPostIncPostDecRule();
+        return $this->getRuleFromConfig(
+            NoPostIncPostDecRule::class,
+            __DIR__ . '/../../../config/symplify-rules.neon'
+        );
     }
 }

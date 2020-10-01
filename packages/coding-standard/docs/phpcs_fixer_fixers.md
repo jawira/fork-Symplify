@@ -1,5 +1,70 @@
 # 10+ PHP CS Fixer Fixers
 
+## Make Newline on Chain Method Call
+
+- class: [`MethodChainingNewlineFixer`](../src/Fixer/Spacing/MethodChainingNewlineFixer.php)
+
+```diff
+ class SkipMultiLineChain
+ {
+     public function run()
+     {
+-        return $this->one()->two();
++        return $this->one()
++->two();
+     }
+
+     public function one()
+     {
+         return $this;
+     }
+
+     public function two()
+     {
+         return $this;
+     }
+ }
+```
+
+<br>
+
+## Keep Array List Items on separated lines
+
+- class: [`ArrayListItemNewlineFixer`](../src/Fixer/ArrayNotation/ArrayListItemNewlineFixer.php)
+
+```diff
+ final class SimpleTwoItems
+ {
+     public function run()
+     {
+-        $value = ['simple' => 1, 'easy' => 2];
++        $value = ['simple' => 1,
++'easy' => 2];
+     }
+}
+```
+
+<br>
+
+## Remove "Created by PHPStorm" Fixers
+
+- class: [`RemovePHPStormAnnotationFixer`](../src/Fixer/Naming/RemovePHPStormAnnotationFixer.php)
+
+```diff
+-/**
+- * Created by PhpStorm.
+- * User: ...
+- * Date: 17/10/17
+- * Time: 8:50 AM
+- */
+
+ final class SimpleAnnotation
+ {
+ }
+```
+
+<br>
+
 ## Add Space After here/now doc To make Compatible with PHP 7.2
 
 - class: [`SpaceAfterCommaHereNowDocFixer`](../src/Fixer/Naming/SpaceAfterCommaHereNowDocFixer.php)
@@ -20,6 +85,8 @@
      }
  }
 ```
+
+<br>
 
 ## Use Configured nowdoc and heredoc keyword
 
@@ -54,16 +121,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
 <br>
 
-## Remove Extra Spaces around Property and Constants Modifiers
+## Add Newline Before and After array opener with Keys
 
-- class: [`ArrayOpenerNewlineFixer`](../src/Fixer/ArrayNotation/ArrayOpenerNewlineFixer.php)
+- class: [`ArrayOpenerAndCloserNewlineFixer`](../src/Fixer/ArrayNotation/ArrayOpenerAndCloserNewlineFixer.php)
 
 ```diff
--$items = [$item,
+-$items = [$item => 1,
+-    $item => 2];
 +$items = [
 +    $item,
-     $item2
- ];
++     $item2
++];
 ```
 
 <br>
@@ -87,6 +155,7 @@ class SomeEntity
 
 The left side indent is handled by teaming up with `DoctrineAnnotationIndentationFixer`.
 
+<br>
 
 ## Strict Types Declaration has to be Followed by Empty Line
 

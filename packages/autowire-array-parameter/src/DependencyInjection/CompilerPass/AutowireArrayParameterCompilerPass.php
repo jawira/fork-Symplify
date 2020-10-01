@@ -85,7 +85,8 @@ final class AutowireArrayParameterCompilerPass implements CompilerPassInterface
         }
 
         // here class name can be "%parameter.class%"
-        $resolvedClassName = $containerBuilder->getParameterBag()->resolveValue($definition->getClass());
+        $resolvedClassName = $containerBuilder->getParameterBag()
+            ->resolveValue($definition->getClass());
 
         // skip 3rd party classes, they're autowired by own config
         if (Strings::match($resolvedClassName, '#^(' . implode('|', self::EXCLUDED_NAMESPACES) . ')\\\\#')) {
@@ -119,12 +120,12 @@ final class AutowireArrayParameterCompilerPass implements CompilerPassInterface
         ReflectionMethod $reflectionMethod,
         Definition $definition
     ): void {
-        foreach ($reflectionMethod->getParameters() as $parameterReflection) {
-            if ($this->shouldSkipParameter($reflectionMethod, $definition, $parameterReflection)) {
+        foreach ($reflectionMethod->getParameters() as $reflectionParameter) {
+            if ($this->shouldSkipParameter($reflectionMethod, $definition, $reflectionParameter)) {
                 continue;
             }
 
-            $parameterType = $this->resolveParameterType($parameterReflection->getName(), $reflectionMethod);
+            $parameterType = $this->resolveParameterType($reflectionParameter->getName(), $reflectionMethod);
             if ($parameterType === null) {
                 continue;
             }
@@ -132,7 +133,7 @@ final class AutowireArrayParameterCompilerPass implements CompilerPassInterface
             $definitionsOfType = $this->definitionFinder->findAllByType($containerBuilder, $parameterType);
             $definitionsOfType = $this->filterOutAbstractDefinitions($definitionsOfType);
 
-            $argumentName = '$' . $parameterReflection->getName();
+            $argumentName = '$' . $reflectionParameter->getName();
             $definition->setArgument($argumentName, $this->createReferencesFromDefinitions($definitionsOfType));
         }
     }

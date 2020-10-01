@@ -6,12 +6,10 @@ namespace Symplify\CodingStandard\Tests\Rules\RequireDataProviderTestMethodRule;
 
 use Iterator;
 use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 use Symplify\CodingStandard\Rules\RequireDataProviderTestMethodRule;
-use Symplify\CodingStandard\Tests\Rules\RequireDataProviderTestMethodRule\Source\AbstractSomeTestClass;
-use Symplify\PackageBuilder\Matcher\ArrayStringAndFnMatcher;
+use Symplify\PHPStanExtensions\Testing\AbstractServiceAwareRuleTestCase;
 
-final class RequireDataProviderTestMethodRuleTest extends RuleTestCase
+final class RequireDataProviderTestMethodRuleTest extends AbstractServiceAwareRuleTestCase
 {
     /**
      * @dataProvider provideData()
@@ -35,6 +33,9 @@ final class RequireDataProviderTestMethodRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new RequireDataProviderTestMethodRule(new ArrayStringAndFnMatcher(), [AbstractSomeTestClass::class]);
+        return $this->getRuleFromConfig(
+            RequireDataProviderTestMethodRule::class,
+            __DIR__ . '/config/standalone_rule.neon'
+        );
     }
 }

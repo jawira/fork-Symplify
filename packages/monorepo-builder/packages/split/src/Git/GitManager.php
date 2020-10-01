@@ -6,6 +6,8 @@ namespace Symplify\MonorepoBuilder\Split\Git;
 
 use Nette\Utils\Strings;
 use Symplify\MonorepoBuilder\Release\Process\ProcessRunner;
+use Symplify\MonorepoBuilder\ValueObject\Option;
+use Symplify\PackageBuilder\Parameter\ParameterProvider;
 
 final class GitManager
 {
@@ -17,12 +19,12 @@ final class GitManager
     /**
      * @var string
      */
-    private const COMMITER_DATE_START_PATTERN = '#^\s*$#';
+    private const COMMITER_DATE_START_REGEX = '#^\s*$#';
 
     /**
      * @var string
      */
-    private const SEMICOLON_PATTERN = '#:#';
+    private const SEMICOLON_REGEX = '#:#';
 
     /**
      * @var string
@@ -34,10 +36,10 @@ final class GitManager
      */
     private $processRunner;
 
-    public function __construct(ProcessRunner $processRunner, ?string $githubToken)
+    public function __construct(ProcessRunner $processRunner, ParameterProvider $parameterProvider)
     {
         $this->processRunner = $processRunner;
-        $this->githubToken = (string) $githubToken;
+        $this->githubToken = (string) $parameterProvider->provideStringParameter(Option::GITHUB_TOKEN);
     }
 
     public function doesBranchExistOnRemote(string $branch): bool
@@ -72,7 +74,7 @@ final class GitManager
     {
         $result = $this->processRunner->run(self::COMMITER_DATE_COMMAND);
 
-        return (bool) Strings::match($result, self::COMMITER_DATE_START_PATTERN);
+        return (bool) Strings::match($result, self::COMMITER_DATE_START_REGEX);
     }
 
     /**
@@ -119,7 +121,7 @@ final class GitManager
 
         [, $partAfterAt,
         ] = explode('@', $remoteRepository, 2);
-        $partAfterAt = Strings::replace($partAfterAt, self::SEMICOLON_PATTERN, '/');
+        $partAfterAt = Strings::replace($partAfterAt, self::SEMICOLON_REGEX, '/');
 
         return sprintf('https://%s@%s', $this->githubToken, $partAfterAt);
     }

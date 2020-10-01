@@ -1,122 +1,48 @@
 includes:
     - ../packages/cognitive-complexity/config/cognitive-complexity-rules.neon
+    - symplify-rules/array-rules.neon
+    - symplify-rules/code-complexity-rules.neon
+    - symplify-rules/static-rules.neon
+    - symplify-rules/doctrine-rules.neon
+    - symplify-rules/naming-rules.neon
+    - symplify-rules/regex-rules.neon
+    - symplify-rules/symfony-rules.neon
+    - symplify-rules/test-rules.neon
 
 parameters:
     symplify:
-        # for Symplify\CodingStandard\Rules\ExcessiveParameterListRule
-        max_parameter_count: 10
-
-        # for Symplify\CodingStandard\Rules\TooLongVariableRule
-        max_variable_length: 40
-
-        # for Symplify\CodingStandard\Rules\ForbiddenParentClassRule
-        forbidden_parent_classes: []
-
-        # for Symplify\CodingStandard\Rules\ExcessivePublicCountRule
-        max_public_class_element_count: 10
-
-        # for Symplify\CodingStandard\Rules\PrefferedStaticCallOverFuncCallRule
-        func_call_to_preffered_static_calls:
-            'preg_match': ['Nette\Utils\Strings', 'match']
-            'preg_match_all': ['Nette\Utils\Strings', 'matchAll']
-            'preg_replace': ['Nette\Utils\Strings', 'replace']
-            'preg_replace_callback': ['Nette\Utils\Strings', 'replace']
-            'preg_split': ['Nette\Utils\Strings', 'split']
-
-        # for Symplify\CodingStandard\Rules\PreferredClassRule
-        old_to_preffered_classes: []
-
-        # for Symplify\CodingStandard\Rules\ForceMethodCallArgumentConstantRule
-        constant_arg_by_method_by_type: []
-
-        # for Symplify\CodingStandard\Rules\ClassNameRespectsParentSuffixRule
-        parent_classes: []
-
-        # for Symplify\CodingStandard\Rules\SeeAnnotationToTestRule
-        required_see_types: []
-
-        # for Symplify\CodingStandard\Rules\RequireStringArgumentInMethodCallRule
-        string_arg_by_method_by_type: []
-
-        # for Symplify\CodingStandard\Rules\RequireDataProviderTestMethodRule
-        classes_requiring_data_provider: []
-
-        # for Symplify\CodingStandard\Rules\NoStaticCallRule
-        allowed_static_call_classes: []
-
-        # cognitive complexity
         max_method_cognitive_complexity: 8
-
-        # deprecated, old alias
-        max_cognitive_complexity: "%symplify.max_method_cognitive_complexity%"
         max_class_cognitive_complexity: 50
 
 services:
-    - Symplify\CodingStandard\PhpParser\NodeNameResolver
-    - Symplify\CodingStandard\PHPStan\ParentMethodAnalyser
-    - Symplify\PackageBuilder\Matcher\ArrayStringAndFnMatcher
+    -
+        class: Symplify\CodingStandard\Rules\NoFactoryInConstructorRule
+        tags: [phpstan.rules.rule]
 
-    # rules
+    -
+        class: Symplify\CodingStandard\Rules\PreventParentMethodVisibilityOverrideRule
+        tags: [phpstan.rules.rule]
+
+    # paths
     -
         class: Symplify\CodingStandard\Rules\NoMissingDirPathRule
         tags: [phpstan.rules.rule]
 
+    # service architeture
     -
         class: Symplify\CodingStandard\Rules\NoNewOutsideFactoryRule
         tags: [phpstan.rules.rule]
 
     -
-        class: Symplify\CodingStandard\Rules\AnnotateRegexClassConstWithRegexLinkRule
+        class: Symplify\CodingStandard\Rules\NoProtectedElementInFinalClassRule
         tags: [phpstan.rules.rule]
 
     -
-        class: Symplify\CodingStandard\Rules\NoInlineStringRegexRule
+        class: Symplify\CodingStandard\Rules\NoScalarAndArrayConstructorParameterRule
         tags: [phpstan.rules.rule]
 
     -
-        class: Symplify\CodingStandard\Rules\NoPostIncPostDecRule
-        tags: [phpstan.rules.rule]
-
-    -
-        class: Symplify\CodingStandard\Rules\NoAbstactMethodRule
-        tags: [phpstan.rules.rule]
-
-    -
-        class: Symplify\CodingStandard\Rules\UppercaseConstantRule
-        tags: [phpstan.rules.rule]
-
-    # arrays
-    -
-        class: Symplify\CodingStandard\Rules\NoArrayStringObjectReturnRule
-        tags: [phpstan.rules.rule]
-
-    -
-        class: Symplify\CodingStandard\Rules\NoMultiArrayAssignRule
-        tags: [phpstan.rules.rule]
-
-    -
-        class: Symplify\CodingStandard\Rules\NoReturnArrayVariableList
-        tags: [phpstan.rules.rule]
-
-    -
-        class: Symplify\CodingStandard\Rules\ForbiddenArrayDestructRule
-        tags: [phpstan.rules.rule]
-
-    -
-        class: Symplify\CodingStandard\Rules\ForbiddenArrayWithStringKeysRule
-        tags: [phpstan.rules.rule]
-
-    -
-        class: Symplify\CodingStandard\Rules\ForbiddenComplexArrayConfigInSetRule
-        tags: [phpstan.rules.rule]
-
-    # doctrine-related
-    -
-        class: Symplify\CodingStandard\Rules\NoEntityManagerInControllerRule
-        tags: [phpstan.rules.rule]
-
-    -
-        class: Symplify\CodingStandard\Rules\NoGetRepositoryOutsideConstructorRule
+        class: Symplify\CodingStandard\Rules\NoAbstractMethodRule
         tags: [phpstan.rules.rule]
 
     # parenting
@@ -124,13 +50,24 @@ services:
         class: Symplify\CodingStandard\Rules\ForbiddenParentClassRule
         tags: [phpstan.rules.rule]
         arguments:
-            forbiddenParentClasses: "%symplify.forbidden_parent_classes%"
+            forbiddenParentClasses:
+                - Doctrine\ORM\EntityRepository
+
+            forbiddenParentClassesWithPreferences:
+                PHPStan\Testing\RuleTestCase: 'Symplify\PHPStanExtensions\Testing\AbstractServiceAwareRuleTestCase'
 
     -
         class: Symplify\CodingStandard\Rules\PreferredClassRule
         tags: [phpstan.rules.rule]
         arguments:
-            oldToPrefferedClasses: "%symplify.old_to_preffered_classes%"
+            oldToPrefferedClasses:
+                SplFileInfo: 'Symplify\SmartFileSystem\SmartFileInfo'
+                DateTime: 'Nette\Utils\DateTime'
+                'PhpCsFixer\Finder': 'Symfony\Component\Finder\Finder'
+                # smart file system
+                'Symfony\Component\Finder\SplFileInfo': 'Symplify\SmartFileSystem\SmartFileInfo'
+                'Nette\Utils\FileSystem': 'Symplify\SmartFileSystem\SmartFileSystem'
+                'Symfony\Component\Filesystem\Filesystem': 'Symplify\SmartFileSystem\SmartFileSystem'
 
     -
         class: Symplify\CodingStandard\Rules\NoReferenceRule
@@ -149,21 +86,19 @@ services:
         tags: [phpstan.rules.rule]
 
     -
-        class: Symplify\CodingStandard\Rules\NoDebugFuncCallRule
+        class: Symplify\CodingStandard\Rules\ForbiddenFuncCallRule
         tags: [phpstan.rules.rule]
+        arguments:
+            forbiddenFunctions: ['d', 'dd', 'dump', 'var_dump', 'extract']
 
     -
         class: Symplify\CodingStandard\Rules\ClassNameRespectsParentSuffixRule
         tags: [phpstan.rules.rule]
         arguments:
-            parentClasses: "%symplify.parent_classes%"
+            parentClasses: []
 
     -
         class: Symplify\CodingStandard\Rules\BoolishClassMethodPrefixRule
-        tags: [phpstan.rules.rule]
-
-    -
-        class: Symplify\CodingStandard\Rules\MatchingTypeConstantRule
         tags: [phpstan.rules.rule]
 
     -
@@ -174,7 +109,15 @@ services:
         class: Symplify\CodingStandard\Rules\SeeAnnotationToTestRule
         tags: [phpstan.rules.rule]
         arguments:
-            requiredSeeTypes: "%symplify.required_see_types%"
+            requiredSeeTypes:
+                - PHPStan\Rules\Rule
+                - PHP_CodeSniffer\Sniffs\Sniff
+                - PHP_CodeSniffer\Fixer
+
+    # dead-code
+    -
+        class: Symplify\CodingStandard\Rules\NoParentMethodCallOnEmptyStatementInParentMethodRule
+        tags: [phpstan.rules.rule]
 
     -
         class: Symplify\CodingStandard\Rules\NoDynamicMethodNameRule
@@ -188,14 +131,7 @@ services:
         class: Symplify\CodingStandard\Rules\NoEmptyRule
         tags: [phpstan.rules.rule]
 
-    -
-        class: Symplify\CodingStandard\Rules\NoFunctionCallInMethodCallRule
-        tags: [phpstan.rules.rule]
-
-    -
-        class: Symplify\CodingStandard\Rules\NoDynamicPropertyFetchNameRule
-        tags: [phpstan.rules.rule]
-
+    # explicit naming
     -
         class: Symplify\CodingStandard\Rules\NoDefaultExceptionRule
         tags: [phpstan.rules.rule]
@@ -205,93 +141,70 @@ services:
         tags: [phpstan.rules.rule]
 
     -
-        class: Symplify\CodingStandard\Rules\ForceMethodCallArgumentConstantRule
-        tags: [phpstan.rules.rule]
-        arguments:
-            constantArgByMethodByType: "%symplify.constant_arg_by_method_by_type%"
-
-    -
         class: Symplify\CodingStandard\Rules\RequireStringArgumentInMethodCallRule
         tags: [phpstan.rules.rule]
         arguments:
-            stringArgByMethodByType: "%symplify.string_arg_by_method_by_type%"
-
-    -
-        class: Symplify\CodingStandard\Rules\NoStaticCallRule
-        tags: [phpstan.rules.rule]
-        arguments:
-            allowedStaticCallClasses: "%symplify.allowed_static_call_classes%"
+            stringArgByMethodByType: []
 
     -
         class: Symplify\CodingStandard\Rules\ExcessiveParameterListRule
         tags: [phpstan.rules.rule]
         arguments:
-            maxParameterCount: "%symplify.max_parameter_count%"
+            maxParameterCount: 8
 
     -
         class: Symplify\CodingStandard\Rules\PrefferedStaticCallOverFuncCallRule
         tags: [phpstan.rules.rule]
         arguments:
-            funcCallToPrefferedStaticCalls: "%symplify.func_call_to_preffered_static_calls%"
+            funcCallToPrefferedStaticCalls:
+                'preg_match': ['Nette\Utils\Strings', 'match']
+                'preg_match_all': ['Nette\Utils\Strings', 'matchAll']
+                'preg_replace': ['Nette\Utils\Strings', 'replace']
+                'preg_replace_callback': ['Nette\Utils\Strings', 'replace']
+                'preg_split': ['Nette\Utils\Strings', 'split']
+                'file_get_contents': ['Symplify\SmartFileSystem\SmartFileSystem', 'readFile']
+                'file_put_contents': ['Symplify\SmartFileSystem\SmartFileSystem', 'dumpFile']
+                'strstr': ['Nette\Utils\Strings', 'contains']
 
     -
         class: Symplify\CodingStandard\Rules\ExcessivePublicCountRule
         tags: [phpstan.rules.rule]
         arguments:
-            maxPublicClassElementCount: "%symplify.max_public_class_element_count%"
+            maxPublicClassElementCount: 10
 
     -
         class: Symplify\CodingStandard\Rules\TooLongVariableRule
         tags: [phpstan.rules.rule]
         arguments:
-            maxVariableLength: "%symplify.max_variable_length%"
+            maxVariableLength: 40
 
     -
-        class: Symplify\CodingStandard\Rules\RequireDataProviderTestMethodRule
+        class: Symplify\CodingStandard\Rules\NoSetterOnServiceRule
         tags: [phpstan.rules.rule]
-        arguments:
-            classesRequiringDataProvider: "%symplify.classes_requiring_data_provider%"
 
+    -
+        class: Symplify\CodingStandard\Rules\NoParentMethodCallOnNoOverrideProcessRule
+        tags: [phpstan.rules.rule]
 
-parametersSchema:
-    symplify: structure([
-        # for Symplify\CodingStandard\Rules\ExcessiveParameterListRule
-        max_parameter_count: int()
+#    -
+#        class: 'PhpParser\ParserFactory'
+#    -
+#        class: PhpParser\Parser
+#        factory: ['@PhpParser\ParserFactory', 'create']
 
-        # for Symplify\CodingStandard\Rules\TooLongVariableRule
-        max_variable_length: int()
+# broken now
+#    -
+#        class: Symplify\CodingStandard\Rules\CheckUnneededSymfonyStyleUsageRule
+#        tags: [phpstan.rules.rule]
 
-        # for Symplify\CodingStandard\Rules\ExcessivePublicCountRule
-        max_public_class_element_count: int()
-
-        # for Symplify\CodingStandard\Rules\ForbiddenParentClassRule
-        forbidden_parent_classes: arrayOf(string())
-
-        # for Symplify\CodingStandard\Rules\RequireDataProviderTestMethodRule
-        classes_requiring_data_provider: arrayOf(string())
-
-        # for Symplify\CodingStandard\Rules\PrefferedStaticCallOverFuncCallRule
-        func_call_to_preffered_static_calls: arrayOf(arrayOf(string()))
-
-        # for Symplify\CodingStandard\Rules\PreferredClassRule
-        old_to_preffered_classes: arrayOf(string())
-
-        max_cognitive_complexity: int()
-        max_method_cognitive_complexity: int()
-        max_class_cognitive_complexity: int()
-
-        # see Symplify\CodingStandard\Rules\ClassNameRespectsParentSuffixRule
-        parent_classes: arrayOf(string())
-
-        # see Symplify\CodingStandard\Rules\SeeAnnotationToTestRule
-        required_see_types: arrayOf(string())
-
-        # for Symplify\CodingStandard\Rules\NoStaticCallRule
-        allowed_static_call_classes: arrayOf(string())
-
-        # for Symplify\CodingStandard\Rules\ForceMethodCallArgumentConstantRule
-        constant_arg_by_method_by_type: arrayOf(arrayOf(arrayOf(int())))
-
-        # for Symplify\CodingStandard\Rules\RequireStringArgumentInMethodCallRule
-        string_arg_by_method_by_type: arrayOf(arrayOf(arrayOf(int())))
-    ])
+    # services
+    - Symplify\CodingStandard\PhpParser\NodeNameResolver
+    - Symplify\CodingStandard\PHPStan\ParentMethodAnalyser
+    - Symplify\CodingStandard\PHPStan\Types\ScalarTypeAnalyser
+    - Symplify\CodingStandard\PHPStan\VariableAsParamAnalyser
+    - Symplify\PackageBuilder\Matcher\ArrayStringAndFnMatcher
+    - Symplify\PackageBuilder\Reflection\PrivatesAccessor
+    - PhpParser\NodeFinder
+    - Symplify\SmartFileSystem\SmartFileSystem
+    - Symplify\CodingStandard\PHPStan\NodeResolver\ParentClassMethodNodeResolver
+    - Symplify\CodingStandard\PHPStan\Types\ContainsTypeAnalyser

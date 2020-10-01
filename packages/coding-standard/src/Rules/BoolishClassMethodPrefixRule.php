@@ -48,6 +48,7 @@ final class BoolishClassMethodPrefixRule implements Rule
         'ends',
         'exists',
         'supports',
+        'provide',
         # array access
         'offsetExists',
     ];
@@ -57,9 +58,9 @@ final class BoolishClassMethodPrefixRule implements Rule
      */
     private $nodeFinder;
 
-    public function __construct()
+    public function __construct(NodeFinder $nodeFinder)
     {
-        $this->nodeFinder = new NodeFinder();
+        $this->nodeFinder = $nodeFinder;
     }
 
     public function getNodeType(): string
@@ -96,7 +97,8 @@ final class BoolishClassMethodPrefixRule implements Rule
         }
 
         $methodReflection = $classReflection->getNativeMethod($methodName);
-        $returnType = ParametersAcceptorSelector::selectSingle($methodReflection->getVariants())->getReturnType();
+        $returnType = ParametersAcceptorSelector::selectSingle($methodReflection->getVariants())
+            ->getReturnType();
         if (! $returnType instanceof BooleanType && ! $this->areOnlyBoolReturnNodes($returns, $scope)) {
             return true;
         }

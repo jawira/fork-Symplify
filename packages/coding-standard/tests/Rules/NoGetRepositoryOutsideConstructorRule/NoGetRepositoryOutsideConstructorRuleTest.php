@@ -6,10 +6,10 @@ namespace Symplify\CodingStandard\Tests\Rules\NoGetRepositoryOutsideConstructorR
 
 use Iterator;
 use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 use Symplify\CodingStandard\Rules\NoGetRepositoryOutsideConstructorRule;
+use Symplify\PHPStanExtensions\Testing\AbstractServiceAwareRuleTestCase;
 
-final class NoGetRepositoryOutsideConstructorRuleTest extends RuleTestCase
+final class NoGetRepositoryOutsideConstructorRuleTest extends AbstractServiceAwareRuleTestCase
 {
     /**
      * @dataProvider provideData()
@@ -32,6 +32,9 @@ final class NoGetRepositoryOutsideConstructorRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new NoGetRepositoryOutsideConstructorRule();
+        return $this->getRuleFromConfig(
+            NoGetRepositoryOutsideConstructorRule::class,
+            __DIR__ . '/../../../config/symplify-rules.neon'
+        );
     }
 }

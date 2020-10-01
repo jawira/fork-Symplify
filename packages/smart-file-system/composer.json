@@ -5,8 +5,8 @@
     "require": {
         "php": ">=7.2",
         "nette/utils": "^3.0",
-        "symfony/finder": "^4.4|^5.0",
-        "symfony/filesystem": "^4.4|^5.0"
+        "symfony/finder": "^4.4|^5.1",
+        "symfony/filesystem": "^4.4|^5.1"
     },
     "require-dev": {
         "nette/finder": "^2.5",
@@ -24,7 +24,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "8.3-dev"
+            "dev-master": "8.4-dev"
         }
     },
     "minimum-stability": "dev",

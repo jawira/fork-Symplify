@@ -1,5 +1,107 @@
 # 38+ PHPStan Rules
 
+## Interface must be suffixed with "Interface"
+
+- class: [`SuffixInterfaceRule`](../src/Rules/SuffixInterfaceRule.php)
+
+```php
+interface SomeClass
+{
+}
+```
+
+:x:
+
+```php
+interface SomeInterface
+{
+}
+```
+
+:+1:
+
+## Trait must be suffixed with "Trait"
+
+- class: [`SuffixTraitRule`](../src/Rules/SuffixTraitRule.php)
+
+```php
+trait SomeClass
+{
+}
+```
+
+:x:
+
+```php
+trait SomeTrait
+{
+}
+```
+
+:+1:
+
+<br>
+
+## `abstract` class name must be prefixed with "Abstract"
+
+- class: [`PrefixAbstractClassRule`](../src/Rules/PrefixAbstractClassRule.php)
+
+```php
+abstract class SomeClass
+{
+}
+```
+
+:x:
+
+```php
+abstract class AbstractSomeClass
+{
+}
+```
+
+:+1:
+
+<br>
+
+## Regex Constants Must end With "_REGEX"
+
+- class: [`RegexSuffixInRegexConstantRule`](../src/Rules/RegexSuffixInRegexConstantRule.php)
+
+```php
+use Nette\Utils\Strings;
+
+class SomePath
+{
+    public const SOME_NAME = '#some\s+name#';
+
+    public function run($value)
+    {
+        $somePath = Strings::match($value, self::SOME_NAME);
+    }
+}
+```
+
+:x:
+
+```php
+use Nette\Utils\Strings;
+
+class SomePath
+{
+    public const SOME_NAME_REGEX = '#some\s+name#';
+
+    public function run($value)
+    {
+        $somePath = Strings::match($value, self::SOME_NAME_REGEX);
+    }
+}
+```
+
+:+1:
+
+<br>
+
 ## __DIR__ . '/*' paths must Exist
 
 - class: [`NoMissingDirPathRule`](../src/Rules/NoMissingDirPathRule.php)
@@ -21,7 +123,6 @@ class SomePath
 ## Test methods by Type Must Use Data Provider
 
 - class: [`RequireDataProviderTestMethodRule`](../src/Rules/RequireDataProviderTestMethodRule.php)
-- **configuration required**
 
 ```yaml
 # phpstan.neon
@@ -98,6 +199,8 @@ class SomeObjectFactory
 
 :+1:
 
+<br>
+
 ## Add regex.com link to Pattern Constants
 
 - class: [`AnnotateRegexClassConstWithRegexLinkRule`](../src/Rules/AnnotateRegexClassConstWithRegexLinkRule.php)
@@ -105,7 +208,7 @@ class SomeObjectFactory
 ```php
 class SomeClass
 {
-    private const REGEX_PATTERN = '#some_complicated_pattern#';
+    private const COMPLICATED_REGEX = '#some_complicated_stu|ff#';
 }
 ```
 
@@ -117,11 +220,13 @@ class SomeClass
     /**
      * @see https://regex101.com/r/SZr0X5/12
      */
-    private const REGEX_PATTERN = '#some_complicated_pattern#';
+    private const COMPLICATED_REGEX = '#some_complicated_stu|ff#';
 }
 ```
 
 :+1:
+
+<br>
 
 ## Use Constant Regex Patterns over Inlined Strings
 
@@ -132,7 +237,7 @@ class SomeClass
 {
     public function run($value)
     {
-        return preg_match('#some_pattern#', $value);
+        return preg_match('#some_stu|ff#', $value);
     }
 }
 ```
@@ -145,11 +250,11 @@ class SomeClass
     /**
      * @var string
      */
-    private const NAMED_REGEX_PATTERN = '#some_pattern#';
+    private const NAMED_REGEX = '#some_stu|ff#';
 
     public function run($value)
     {
-        return preg_match(self::SOME_PATTERN, $value);
+        return preg_match(self::NAMED_REGEX, $value);
     }
 }
 ```
@@ -178,9 +283,36 @@ class SomeClass
 
 <br>
 
+## No protected element in final class
+
+- class: [`NoProtectedElementInFinalClassRule`](../src/Rules/NoProtectedElementInFinalClassRule.php)
+
+```yaml
+# phpstan.neon
+services:
+    -
+        class: Symplify\CodingStandard\Rules\NoProtectedElementInFinalClassRule
+        tags: [phpstan.rules.rule]
+```
+
+```php
+final class SomeFinalClassWithProtectedPropertyAndProtectedMethod
+{
+    protected $x = [];
+
+    protected function run()
+    {
+    }
+}
+```
+
+:x:
+
+<br>
+
 ## Use Contract or Service over Abstract Method
 
-- class: [`NoAbstactMethodRule`](../src/Rules/NoAbstactMethodRule.php)
+- class: [`NoAbstractMethodRule`](../src/Rules/NoAbstractMethodRule.php)
 
 ```php
 abstract class SomeClass
@@ -206,20 +338,20 @@ final class SomeClass
 
 :x:
 
+<br>
+
 ## Keep Variable Not Too Long
 
 - class: [`TooLongVariableRule`](../src/Rules/TooLongVariableRule.php)
-- **configuration allowed**
 
 ```yaml
 # phpstan.neon
-rules:
-    - Symplify\CodingStandard\Rules\TooLongVariableRule
-
-parameters:
-    symplify:
-        # [default: 20]
-        max_variable_length: 15
+services:
+    -
+        class: Symplify\CodingStandard\Rules\TooLongVariableRule
+        tags: [phpstan.rules.rule]
+        arguments:
+            maxVariableLength: 40
 ```
 
 ```php
@@ -239,21 +371,22 @@ final class SomeClass
 ## Keep Low Public Elements in a Class
 
 - class: [`ExcessivePublicCountRule`](../src/Rules/ExcessivePublicCountRule.php)
-- **configuration allowed**
 
 ```yaml
 # phpstan.neon
-rules:
-    - Symplify\CodingStandard\Rules\ExcessivePublicCountRule
-
-parameters:
-    symplify:
-        # [default: 45]
-        max_public_class_element_count: 30
+services:
+    -
+        class: Symplify\CodingStandard\Rules\ExcessivePublicCountRule
+        tags: [phpstan.rules.rule]
+        arguments:
+            maxPublicClassElementCount: 10
 ```
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 final class SomeClass
 {
@@ -276,21 +409,23 @@ final class SomeClass
 ## Prefer Static Call over specific Function
 
 - class: [`PrefferedStaticCallOverFuncCallRule`](../src/Rules/PrefferedStaticCallOverFuncCallRule.php)
-- **configuration required**
 
 ```yaml
 # phpstan.neon
-rules:
-    - Symplify\CodingStandard\Rules\PrefferedStaticCallOverFuncCallRule
-
-parameters:
-    symplify:
-        func_call_to_preffered_static_calls:
-            'preg_match': ['Nette\Utils\Strings', 'match']
+services:
+    -
+        class: Symplify\CodingStandard\Rules\PrefferedStaticCallOverFuncCallRule
+        tags: [phpstan.rules.rule]
+        arguments:
+            funcCallToPrefferedStaticCalls:
+                'preg_match': ['Nette\Utils\Strings', 'match']
 ```
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 final class SomeClass
 {
@@ -308,21 +443,22 @@ final class SomeClass
 ## Keep Low Parameter Count in Methods and Functions
 
 - class: [`ExcessiveParameterListRule`](../src/Rules/ExcessiveParameterListRule.php)
-- **configuration allowed**
 
 ```yaml
 # phpstan.neon
-rules:
-    - Symplify\CodingStandard\Rules\ExcessiveParameterListRule
-
-parameters:
-    symplify:
-        # [default: 10]
-        max_parameter_count: 5
+services:
+    -
+        class: Symplify\CodingStandard\Rules\ExcessiveParameterListRule
+        tags: [phpstan.rules.rule]
+        arguments:
+            maxParameterCount: 8
 ```
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 final class SomeClass
 {
@@ -339,22 +475,23 @@ final class SomeClass
 ## No Static Calls
 
 - class: [`NoStaticCallRule`](../src/Rules/NoStaticCallRule.php)
-- **configuration allowed**
 
 ```yaml
 # phpstan.neon
-rules:
-    - Symplify\CodingStandard\Rules\NoStaticCallRule
-
-parameters:
-    symplify:
-        # for \Symplify\CodingStandard\Rules\NoStaticCallRule
-        allowed_static_call_classes:
-            - 'Nette\Utils\DateTime'
+services:
+    -
+        class: Symplify\CodingStandard\Rules\NoStaticCallRule
+        tags: [phpstan.rules.rule]
+        arguments:
+            allowedStaticCallClasses:
+                - 'Symplify\PackageBuilder\Console\Command\CommandNaming'
 ```
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 final class SomeClass
 {
@@ -369,27 +506,90 @@ final class SomeClass
 
 <br>
 
+## No Static Property
+
+- class: [`NoStaticPropertyRule`](../src/Rules/NoStaticPropertyRule.php)
+
+```yaml
+# phpstan.neon
+services:
+    -
+        class: Symplify\CodingStandard\Rules\NoStaticPropertyRule
+        tags: [phpstan.rules.rule]
+```
+
+```php
+<?php
+
+
+declare(strict_types=1);
+
+final class SomeClass
+{
+    protected static $customFileNames = [];
+}
+```
+
+:x:
+
+<br>
+
+## No Trait Except Its methods public and Required via @required Docblock
+
+- class: [`NoTraitExceptItsMethodsPublicAndRequiredRule`](../src/Rules/NoTraitExceptItsMethodsPublicAndRequiredRule.php)
+
+```yaml
+# phpstan.neon
+services:
+    -
+        class: Symplify\CodingStandard\Rules\NoTraitExceptItsMethodsPublicAndRequiredRule
+```
+
+```php
+<?php
+
+
+declare(strict_types=1);
+
+trait SomeTrait
+{
+    /**
+     * @required
+     */
+    public function run()
+    {
+
+    }
+}
+```
+
+:x:
+
+<br>
+
 ## Use Explicit String over ::class Reference on Specific Method Call Position
 
 Useful for PHAR prefixing with [php-scoper](https://github.com/humbug/php-scoper) and [box](https://github.com/humbug/box). This allows you to keep configurable string-classes unprefixed. If `::class` is used, they would be prefixed with `Prefix30281...`, so the original class would never be found.
 
-- **configuration required**
 - class: [`RequireStringArgumentInMethodCallRule`](../src/Rules/RequireStringArgumentInMethodCallRule.php)
 
 ```yaml
 # phpstan.neon
-rules:
-    - Symplify\CodingStandard\Rules\RequireStringArgumentInMethodCallRule
-
-parameters:
-    symplify:
-        string_arg_by_method_by_type:
-            SomeObject:
-                someMethod: [1]
+services:
+    -
+        class: Symplify\CodingStandard\Rules\RequireStringArgumentInMethodCallRule
+        tags: [phpstan.rules.rule]
+        arguments:
+            stringArgByMethodByType:
+                SomeObject:
+                    someMethod: [1]
 ```
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 class SomeClass
 {
@@ -403,7 +603,10 @@ class SomeClass
 :x:
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 class SomeClass
 {
@@ -423,7 +626,10 @@ class SomeClass
 - class: [`ForbiddenComplexArrayConfigInSetRule`](../src/Rules/ForbiddenComplexArrayConfigInSetRule.php)
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -440,7 +646,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 :x:
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -465,7 +674,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 - class: [`NoEntityManagerInControllerRule`](../src/Rules/NoEntityManagerInControllerRule.php)
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -481,7 +693,10 @@ final class SomeController
 :x:
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 final class SomeController
 {
@@ -496,12 +711,41 @@ final class SomeController
 
 <br>
 
+## No factory method call in constructor
+
+- class: [`NoFactoryInConstructorRule`](../src/Rules/NoFactoryInConstructorRule.php)
+
+```yaml
+# phpstan.neon
+services:
+    -
+        class: Symplify\CodingStandard\Rules\NoFactoryInConstructorRule
+        tags: [phpstan.rules.rule]
+```
+
+```php
+final class WithConstructorWithFactory
+{
+    public function __construct(Factory $factory)
+    {
+        $factory->build();
+    }
+}
+```
+
+:x:
+
+<br>
+
 ## `getRepository()` is allowed only in Repository constructor
 
 - class: [`NoGetRepositoryOutsideConstructorRule`](../src/Rules/NoGetRepositoryOutsideConstructorRule.php)
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 use Doctrine\ORM\EntityManager;
 
@@ -517,7 +761,10 @@ final class SomeController
 :x:
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -547,7 +794,10 @@ Inspired by [Null Hell](https://afilina.com/null-hell) by @afilina
 - class: [`NoNullableParameterRule`](../src/Rules/NoNullableParameterRule.php)
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 class SomeClass
 {
@@ -561,12 +811,77 @@ class SomeClass
 
 <br>
 
+## No Parent Method Call on Empty Statement in Parent Method
+
+- class: [`NoParentMethodCallOnEmptyStatementInParentMethodRule`](../src/Rules/NoParentMethodCallOnEmptyStatementInParentMethodRule.php)
+
+```yaml
+# phpstan.neon
+services:
+    -
+        class: Symplify\CodingStandard\Rules\NoParentMethodCallOnEmptyStatementInParentMethodRule
+        tags: [phpstan.rules.rule]
+```
+
+```php
+abstract class ParentClass
+{
+    protected function setUp()
+    {
+        // empty statement
+    }
+}
+
+final class SomeClass extends ParentClass
+{
+    protected function setUp()
+    {
+        parent::setUp();
+
+        echo 'some code';
+    }
+}
+```
+
+:x:
+
+<br>
+
+## No parent method call on No override process
+
+- class: [`NoParentMethodCallOnNoOverrideProcessRule`](../src/Rules/NoParentMethodCallOnNoOverrideProcessRule.php)
+
+```yaml
+# phpstan.neon
+services:
+    -
+        class: Symplify\CodingStandard\Rules\NoParentMethodCallOnNoOverrideProcessRule
+        tags: [phpstan.rules.rule]
+```
+
+```php
+final class SomeTest exteds TestCase
+{
+     protected function setUp()
+     {
+          parent::setUp();
+     }
+}
+```
+
+:x:
+
+<br>
+
 ## No Parameter can Have Default Value
 
 - class: [`NoDefaultParameterValueRule`](../src/Rules/NoDefaultParameterValueRule.php)
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 class SomeClass
 {
@@ -588,20 +903,23 @@ Covers `Interface` suffix as well, e.g `EventSubscriber` checks for `EventSubscr
 
 ```yaml
 # phpstan.neon
-rules:
-    - Symplify\CodingStandard\Rules\ClassNameRespectsParentSuffixRule
-
-parameters:
-    symplify:
-        parent_classes:
-            - Rector
-            - Rule
+services:
+    -
+        class: Symplify\CodingStandard\Rules\ClassNameRespectsParentSuffixRule
+        tags: [phpstan.rules.rule]
+        arguments:
+            parentClasses:
+                - Rector
+                - Rule
 ```
 
 :x:
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 // should be "SomeCommand"
 class Some extends Command
@@ -611,20 +929,31 @@ class Some extends Command
 
 <br>
 
-## Debug functions Cannot Be left in the Code
+## Forbid unwanted Functions
 
-- class: [`NoDebugFuncCallRule`](../src/Rules/NoDebugFuncCallRule.php)
+- class: [`ForbiddenFuncCallRule`](../src/Rules/ForbiddenFuncCallRule.php)
 
-:x:
+```yaml
+# phpstan.neon
+services:
+    -
+        class: Symplify\CodingStandard\Rules\ForbiddenFuncCallRule
+        tags: [phpstan.rules.rule]
+        arguments:
+            # default are: ['d', 'dd', 'dump', 'var_dump', 'extract']
+            forbiddenFunctions: ['dump', 'echo', 'print', 'exec']
+```
 
 ```php
-<?php declare(strict_types=1);
+<?php
 
-d($value);
-dd($value);
+
+declare(strict_types=1);
+
 dump($value);
-var_dump($value);
 ```
+
+:x:
 
 <br>
 
@@ -632,10 +961,11 @@ var_dump($value);
 
 - class: [`NoEmptyRule`](../src/Rules/NoEmptyRule.php)
 
-:x:
-
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 final class SomeClass
 {
@@ -646,10 +976,13 @@ final class SomeClass
 }
 ```
 
-:+1:
+:x:
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 final class SomeClass
 {
@@ -660,6 +993,8 @@ final class SomeClass
 }
 ```
 
+:+1:
+
 <br>
 
 ## Prevent Override of Parent Method Visbility
@@ -667,7 +1002,10 @@ final class SomeClass
 - class: [`PreventParentMethodVisibilityOverrideRule`](../src/Rules/PreventParentMethodVisibilityOverrideRule.php)
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 class ProtectedVisibility
 {
@@ -688,32 +1026,15 @@ final class PublicOverride extends ProtectedVisibility
 
 <br>
 
-## Use explicit Property Fetch Names over Dynamic
-
-- class: [`NoDynamicPropertyFetchNameRule`](../src/Rules/NoDynamicPropertyFetchNameRule.php)
-
-```php
-<?php declare(strict_types=1);
-
-final class DynamicPropertyFetchName
-{
-    public function run($value): void
-    {
-        $this->{$value};
-    }
-}
-```
-
-:x:
-
-<br>
-
-## No Function Call on Method Call
+## No Function Call in Method Call
 
 - class: [`NoFunctionCallInMethodCallRule`](../src/Rules/NoFunctionCallInMethodCallRule.php)
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 final class SomeClass
 {
@@ -732,7 +1053,10 @@ final class SomeClass
 :x:
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 final class SomeClass
 {
@@ -758,7 +1082,10 @@ final class SomeClass
 - class: [`NoArrayAccessOnObjectRule`](../src/Rules/NoArrayAccessOnObjectRule.php)
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 final class MagicArrayObject implements ArrayAccess
 {
@@ -785,7 +1112,10 @@ final class MagicArrayObject implements ArrayAccess
 ```
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 final class SomeClass
 {
@@ -805,7 +1135,10 @@ final class SomeClass
 - class: [`NoIssetOnObjectRule`](../src/Rules/NoIssetOnObjectRule.php)
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 final class IssetOnObject
 {
@@ -825,7 +1158,10 @@ final class IssetOnObject
 :x:
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 final class IssetOnObject
 {
@@ -847,12 +1183,38 @@ final class IssetOnObject
 
 <br>
 
+## Use explicit Property Fetch Names over Dynamic
+
+- class: [`NoDynamicPropertyFetchNameRule`](../src/Rules/NoDynamicPropertyFetchNameRule.php)
+
+```php
+<?php
+
+
+declare(strict_types=1);
+
+final class DynamicPropertyFetchName
+{
+    public function run($value): void
+    {
+        $this->{$value};
+    }
+}
+```
+
+:x:
+
+<br>
+
 ## Use explicit Method Names over Dynamic
 
 - class: [`NoDynamicMethodNameRule`](../src/Rules/NoDynamicMethodNameRule.php)
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 final class DynamicMethodCallName
 {
@@ -872,7 +1234,10 @@ final class DynamicMethodCallName
 - class: [`NoReferenceRule`](../src/Rules/NoReferenceRule.php)
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 function someFunction(&$var): void
 {
@@ -883,7 +1248,10 @@ function someFunction(&$var): void
 :x:
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 function someFunction($var)
 {
@@ -895,25 +1263,81 @@ function someFunction($var)
 
 <br>
 
+## No scalar and array in constructor parameter
+
+- class: [`NoScalarAndArrayConstructorParameterRule`](../src/Rules/NoScalarAndArrayConstructorParameterRule.php)
+
+```yaml
+# phpstan.neon
+services:
+    -
+        class: Symplify\CodingStandard\Rules\NoScalarAndArrayConstructorParameterRule
+        tags: [phpstan.rules.rule]
+```
+
+```php
+final class SomeConstruct
+{
+    protected function __construct(string $string)
+    {
+    }
+}
+```
+
+:x:
+
+<br>
+
+## No setter on a service
+
+- class: [`NoSetterOnServiceRule`](../src/Rules/NoSetterOnServiceRule.php)
+
+```yaml
+# phpstan.neon
+services:
+    -
+        class: Symplify\CodingStandard\Rules\NoSetterOnServiceRule
+        tags: [phpstan.rules.rule]
+```
+
+```php
+final class SomeServiceWithSetter
+{
+    private $x;
+
+    public function setX(stdClass $x)
+    {
+        $this->x = $x;
+    }
+}
+```
+
+:x:
+
+<br>
+
 ## Class "%s" inherits from forbidden parent class "%s". Use Composition over Inheritance instead
 
 - class: [`ForbiddenParentClassRule`](../src/Rules/ForbiddenParentClassRule.php)
 
 ```yaml
 # phpstan.neon
-rules:
-    - Symplify\CodingStandard\Rules\ForbiddenParentClassRule
-
-parameters:
-    symplify:
-        forbidden_parent_classes:
-            - 'Doctrine\ORM\EntityRepository'
-            # you can use fnmatch() pattern
-            - '*\AbstractController'
+services:
+    -
+        class: Symplify\CodingStandard\Rules\ForbiddenParentClassRule
+        tags: [phpstan.rules.rule]
+        arguments:
+            forbiddenParentClasses:
+                - 'Doctrine\ORM\EntityRepository'
+                # you can use fnmatch() pattern
+                - '*\AbstractController'
 ```
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 use Doctrine\ORM\EntityRepository;
 
@@ -925,7 +1349,10 @@ final class ProductRepository extends EntityRepository
 :x:
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 use Doctrine\ORM\EntityRepository;
 
@@ -952,7 +1379,10 @@ final class ProductRepository
 - class: [`NoDefaultExceptionRule`](../src/Rules/NoDefaultExceptionRule.php)
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 throw new RuntimeException('...');
 ```
@@ -960,7 +1390,10 @@ throw new RuntimeException('...');
 :x:
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 use App\Exception\FileNotFoundExceptoin;
 
@@ -991,10 +1424,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 };
 ```
 
-:x:
-
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 class SomeClass
 {
@@ -1005,6 +1439,8 @@ class SomeClass
 }
 ```
 
+:x:
+
 <br>
 
 ## Boolish Methods has to have is/has/was Name
@@ -1012,7 +1448,10 @@ class SomeClass
 - class: [`BoolishClassMethodPrefixRule`](../src/Rules/BoolishClassMethodPrefixRule.php)
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 class SomeClass
 {
@@ -1025,8 +1464,98 @@ class SomeClass
 
 :x:
 
+<br>
+
+## Check Not Tests Namespace Outside Tests Directory
+
+- class: [`CheckNotTestsNamespaceOutsideTestsDirectoryRule`](../src/Rules/CheckNotTestsNamespaceOutsideTestsDirectoryRule.php)
+
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
+
+namespace Symplify\CodingStandard\Tests\Rules\CheckNotTestsNamespaceOutsideTestsDirectoryRule\Fixture\Tests;
+
+class TestsNamespaceInsideTestsDirectoryClass
+{
+
+}
+```
+
+:x:
+
+<br>
+
+## Check Required `abstract` Keyword for Class Name Start with Abstract
+
+- class: [`CheckRequiredAbstractKeywordForClassNameStartWithAbstractRule`](../src/Rules/CheckRequiredAbstractKeywordForClassNameStartWithAbstractRule.php)
+
+```yaml
+# phpstan.neon
+services:
+    -
+        class: Symplify\CodingStandard\Rules\CheckRequiredAbstractKeywordForClassNameStartWithAbstractRule
+        tags: [phpstan.rules.rule]
+```
+
+```php
+<?php
+
+
+declare(strict_types=1);
+
+namespace Symplify\CodingStandard\Tests\Rules\CheckRequiredAbstractKeywordForClassNameStartWithAbstract\Fixture\Tests;
+
+class AbstractFoo
+{
+
+}
+```
+
+:x:
+
+<br>
+
+## Check Method with @required need to be named autowire+class name
+
+- class: [`CheckRequiredMethodTobeAutowireWithClassNameRule`](../src/Rules/CheckRequiredMethodTobeAutowireWithClassNameRule.php)
+
+```yaml
+# phpstan.neon
+services:
+    -
+        class: Symplify\CodingStandard\Rules\CheckRequiredMethodTobeAutowireWithClassNameRule
+        tags: [phpstan.rules.rule]
+```
+
+```php
+<?php
+
+
+declare(strict_types=1);
+
+namespace Symplify\CodingStandard\Tests\Rules\CheckRequiredMethodTobeAutowireWithClassName\Fixture\Tests;
+
+final class WithRequiredAutowire
+{
+    /**
+     * @required
+     */
+    public function autowireWithRequiredAutowire()
+    {
+    }
+}
+```
+
+:x:
+
+```php
+<?php
+
+
+declare(strict_types=1);
 
 class SomeClass
 {
@@ -1041,12 +1570,57 @@ class SomeClass
 
 <br>
 
+## Check Unneeded SymfonyStyle usage for only newline, write, and/or writeln
+
+- class: [`CheckUnneededSymfonyStyleUsageRule`](../src/Rules/CheckUnneededSymfonyStyleUsageRule.php)
+
+```yaml
+# phpstan.neon
+services:
+    -
+        class: Symplify\CodingStandard\Rules\CheckUnneededSymfonyStyleUsageRule
+        tags: [phpstan.rules.rule]
+```
+
+```php
+<?php
+
+
+declare(strict_types=1);
+
+namespace Symplify\CodingStandard\Tests\Rules\CheckRequireMethodTobeAutowireWithClassName\Fixture;
+
+use Symfony\Component\Console\Style\SymfonyStyle;
+
+class UseMethodCallFromSymfonyStyle
+{
+    private $symfonyStyle;
+
+    public function __construct(SymfonyStyle $symfonyStyle)
+    {
+        $this->symfonyStyle = $symfonyStyle;
+    }
+
+    public function run()
+    {
+        $this->symfonyStyle->newline();
+    }
+}
+```
+
+:x:
+
+<br>
+
 ## Constant type Must Match its Value
 
 - class: [`MatchingTypeConstantRule`](../src/Rules/MatchingTypeConstantRule.php)
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 class SomeClass
 {
@@ -1061,7 +1635,10 @@ class SomeClass
 
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 class SomeClass
 {
@@ -1078,24 +1655,25 @@ class SomeClass
 
 ## Defined Method Argument should be Always Constant Value
 
-- class: [`ForceMethodCallArgumentConstantRule`](../src/Rules/ForceMethodCallArgumentConstantRule.php)
+- class: [`RequireMethodCallArgumentConstantRule`](../src/Rules/RequireMethodCallArgumentConstantRule.php)
 
 ```yaml
 # phpstan.neon
-parameters:
-    symplify:
-        constant_arg_by_method_by_type:
-            AlwaysCallMeWithConstant:
-                some_type: [0] # positions
-
-rules:
-    - Symplify\CodingStandard\Rules\ForceMethodCallArgumentConstantRule
+services:
+    -
+        class: Symplify\CodingStandard\Rules\RequireMethodCallArgumentConstantRule
+        tags: [phpstan.rules.rule]
+        arguments:
+            constantArgByMethodByType:
+                AlwaysCallMeWithConstant:
+                    some_type: [0] # positions
 ```
 
-:x:
-
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 class SomeClass
 {
@@ -1108,6 +1686,8 @@ class SomeClass
 }
 ```
 
+:x:
+
 <br>
 
 ## Require @see annotation to class Test case by Type
@@ -1116,19 +1696,22 @@ class SomeClass
 
 ```yaml
 # phpstan.neon
-parameters:
-    symplify:
-        required_see_types:
-            - PHPStan\Rules\Rule
-
-rules:
-    - Symplify\CodingStandard\Rules\SeeAnnotationToTestRule
+services:
+    -
+        class: Symplify\CodingStandard\Rules\SeeAnnotationToTestRule
+        tags: [phpstan.rules.rule]
+        arguments:
+            requiredSeeTypes:
+                - PHPStan\Rules\Rule
+                - PHP_CodeSniffer\Sniffs\Sniff
+                - PHP_CodeSniffer\Fixer
 ```
 
-:x:
-
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 use PHPStan\Rules\Rule;
 
@@ -1138,10 +1721,13 @@ class SomeRule implements Rule
 }
 ```
 
-:+1:
+:x:
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 use PHPStan\Rules\Rule;
 
@@ -1154,6 +1740,8 @@ class SomeRule implements Rule
 }
 ```
 
+:+1:
+
 <br>
 
 ## Prefer Another Class
@@ -1162,23 +1750,35 @@ class SomeRule implements Rule
 
 ```yaml
 # phpstan.neon
-parameters:
-    symplify:
-        old_to_preffered_classes:
-            DateTime: 'Nette\Utils\DateTime'
+services:
+    -
+        class: Symplify\CodingStandard\Rules\PreferredClassRule
+        tags: [phpstan.rules.rule]
+        arguments:
+            oldToPrefferedClasses:
+                SplFileInfo: 'Symplify\SmartFileSystem\SmartFileInfo'
+                DateTime: 'Nette\Utils\DateTime'
+```
 
-rules:
-    - Symplify\CodingStandard\Rules\PreferredClassRule
+```php
+<?php
+
+declare(strict_types=1);
+
+$dateTime = new DateTime('now');
 ```
 
 :x:
 
 ```php
-<?php declare(strict_types=1);
+<?php
 
-// should be "Nette\Utils\DateTime"
-$dateTime = new DateTime('now');
+declare(strict_types=1);
+
+$dateTime = new Nette\Utils\DateTime('now');
 ```
+
+:+1:
 
 <br>
 
@@ -1190,12 +1790,11 @@ Be honest about static. [Why is static bad?](https://tomasvotruba.com/blog/2019/
 
 Value object static constructors, EventSubscriber and Command classe are excluded.
 
-:x:
-
 ```php
-<?php declare(strict_types=1);
+<?php
 
-// should be: "StaticFormatConverter"
+declare(strict_types=1);
+
 class FormatConverter
 {
     public static function yamlToJson(array $yaml): array
@@ -1205,6 +1804,49 @@ class FormatConverter
 }
 ```
 
+:x:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+class StaticFormatConverter
+{
+    public static function yamlToJson(array $yaml): array
+    {
+        // ...
+    }
+}
+```
+
+:+1:
+
+<br>
+
+## No constructor in Test
+
+- class: [`NoConstructorInTestRule`](../src/Rules/NoConstructorInTestRule.php)
+
+```yaml
+# phpstan.neon
+services:
+    -
+        class: Symplify\CodingStandard\Rules\NoConstructorInTestRule
+        tags: [phpstan.rules.rule]
+```
+
+```php
+final class SomeTest
+{
+    public function __construct()
+    {
+    }
+}
+```
+
+:x:
+
 <br>
 
 ## Use Unique Class Short Names
@@ -1212,7 +1854,10 @@ class FormatConverter
 - class: [`NoDuplicatedShortClassNameRule`](../src/Rules/NoDuplicatedShortClassNameRule.php)
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 namespace App;
 
@@ -1225,7 +1870,10 @@ class Finder
 :x:
 
 ```php
-<?php declare(strict_types=1);
+<?php
+
+
+declare(strict_types=1);
 
 namespace App\Entity;
 

@@ -6,7 +6,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symplify\CodingStandard\CognitiveComplexity\Rules\ClassLikeCognitiveComplexityRule;
 use Symplify\CodingStandard\CognitiveComplexity\Rules\FunctionLikeCognitiveComplexityRule;
 use Symplify\CodingStandard\Fixer\AbstractSymplifyFixer;
+use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayOpenerNewlineFixer;
 use Symplify\CodingStandard\Rules\AbstractManyNodeTypeRule;
+use Symplify\CodingStandard\Rules\AbstractRegexRule;
 use Symplify\PackageBuilder\Console\ShellCode;
 use Symplify\PackageBuilder\Console\Style\SymfonyStyleFactory;
 use Symplify\SmartFileSystem\SmartFileSystem;
@@ -27,7 +29,7 @@ final class CodingStandardSyncChecker
      * @see https://regex101.com/r/Unygf7/5
      * @var string
      */
-    private const CHECKER_CLASS_PATTERN = '#\b(?<class_name>\w+(Fixer|Sniff|Rule))\b#m';
+    private const CHECKER_CLASS_REGEX = '#\b(?<class_name>\w+(Fixer|Sniff|Rule))\b#m';
 
     /**
      * @var SymfonyStyle
@@ -82,7 +84,7 @@ final class CodingStandardSyncChecker
 
         foreach ($filePaths as $filePath) {
             $docFileContent = $this->smartFileSystem->readFile($filePath);
-            $checkerClassMatches = Strings::matchAll($docFileContent, self::CHECKER_CLASS_PATTERN);
+            $checkerClassMatches = Strings::matchAll($docFileContent, self::CHECKER_CLASS_REGEX);
 
             foreach ($checkerClassMatches as $checkerClassMatch) {
                 $checkerClasses[] = $checkerClassMatch['class_name'];
@@ -119,17 +121,20 @@ final class CodingStandardSyncChecker
         sort($existingCheckerRules);
 
         $classesToExclude = [
-            // abstract
-            AbstractSymplifyFixer::class,
-            AbstractManyNodeTypeRule::class,
             // part of imported config
             ClassLikeCognitiveComplexityRule::class,
             FunctionLikeCognitiveComplexityRule::class,
+            // deprecated
+            ArrayOpenerNewlineFixer::class,
         ];
 
-        // filter out abstract class
         $shortClasses = [];
         foreach ($existingCheckerRules as $key => $existingCheckerRule) {
+            // filter out abstract class
+            if (Strings::contains($existingCheckerRule, '\Abstract')) {
+                continue;
+            }
+
             if (in_array($existingCheckerRule, $classesToExclude, true)) {
                 continue;
             }

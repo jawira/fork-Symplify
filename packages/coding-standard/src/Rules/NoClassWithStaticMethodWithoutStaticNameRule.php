@@ -37,16 +37,16 @@ final class NoClassWithStaticMethodWithoutStaticNameRule implements Rule
     /**
      * @var string
      */
-    private const STATIC_PATTERN = '#static#i';
+    private const STATIC_REGEX = '#static#i';
 
     /**
      * @var NodeFinder
      */
     private $nodeFinder;
 
-    public function __construct()
+    public function __construct(NodeFinder $nodeFinder)
     {
-        $this->nodeFinder = new NodeFinder();
+        $this->nodeFinder = $nodeFinder;
     }
 
     public function getNodeType(): string
@@ -74,7 +74,9 @@ final class NoClassWithStaticMethodWithoutStaticNameRule implements Rule
             return [];
         }
 
-        return [sprintf(self::ERROR_MESSAGE, $classShortName)];
+        $errorMessage = sprintf(self::ERROR_MESSAGE, $classShortName);
+
+        return [$errorMessage];
     }
 
     private function isClassWithStaticMethod($node): bool
@@ -100,7 +102,7 @@ final class NoClassWithStaticMethodWithoutStaticNameRule implements Rule
             }
         }
 
-        return (bool) Strings::match($classShortName, self::STATIC_PATTERN);
+        return (bool) Strings::match($classShortName, self::STATIC_REGEX);
     }
 
     private function isStaticConstructorOfValueObject(ClassMethod $classMethod): bool

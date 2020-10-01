@@ -6,10 +6,10 @@ namespace Symplify\CodingStandard\Tests\Rules\NoNullableParameterRule;
 
 use Iterator;
 use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 use Symplify\CodingStandard\Rules\NoNullableParameterRule;
+use Symplify\PHPStanExtensions\Testing\AbstractServiceAwareRuleTestCase;
 
-final class NoNullableParameterRuleTest extends RuleTestCase
+final class NoNullableParameterRuleTest extends AbstractServiceAwareRuleTestCase
 {
     /**
      * @dataProvider provideData()
@@ -27,6 +27,9 @@ final class NoNullableParameterRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new NoNullableParameterRule();
+        return $this->getRuleFromConfig(
+            NoNullableParameterRule::class,
+            __DIR__ . '/../../../config/symplify-strict-rules.neon'
+        );
     }
 }

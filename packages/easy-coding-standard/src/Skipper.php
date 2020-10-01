@@ -7,6 +7,8 @@ namespace Symplify\EasyCodingStandard;
 use Nette\Utils\Strings;
 use PHP_CodeSniffer\Sniffs\Sniff;
 use PhpCsFixer\Fixer\FixerInterface;
+use Symplify\EasyCodingStandard\ValueObject\Option;
+use Symplify\PackageBuilder\Parameter\ParameterProvider;
 use Symplify\SmartFileSystem\SmartFileInfo;
 
 final class Skipper
@@ -14,12 +16,12 @@ final class Skipper
     /**
      * @var string
      */
-    private const ONLY_ENDS_WITH_ASTERISK_PATTERN = '#^[^*](.*?)\*$#';
+    private const ONLY_ENDS_WITH_ASTERISK_REGEX = '#^[^*](.*?)\*$#';
 
     /**
      * @var string
      */
-    private const ONLY_STARTS_WITH_ASTERISK_PATTERN = '#^\*(.*?)[^*]$#';
+    private const ONLY_STARTS_WITH_ASTERISK_REGEX = '#^\*(.*?)[^*]$#';
 
     /**
      * @var string[][]
@@ -46,14 +48,15 @@ final class Skipper
      */
     private $only = [];
 
-    /**
-     * @param mixed[] $skip
-     * @param mixed[] $only
-     * @param mixed[] $excludeFiles
-     * @param mixed[] $excludePaths
-     */
-    public function __construct(array $skip, array $only, array $excludeFiles, array $excludePaths)
+    public function __construct(ParameterProvider $parameterProvider)
     {
+        $skip = $parameterProvider->provideArrayParameter(Option::SKIP);
+        $only = $parameterProvider->provideArrayParameter(Option::ONLY);
+
+        $excludePaths = $parameterProvider->provideArrayParameter(Option::EXCLUDE_PATHS);
+        // for BC
+        $excludeFiles = $parameterProvider->provideArrayParameter(Option::EXCLUDE_FILES);
+
         $this->categorizeSkipSettings($skip);
         $this->only = $only;
         $this->excludedPaths = array_merge($excludePaths, $excludeFiles);
@@ -208,11 +211,11 @@ final class Skipper
     private function normalizeForFnmatch(string $path): string
     {
         // ends with *
-        if (Strings::match($path, self::ONLY_ENDS_WITH_ASTERISK_PATTERN)) {
+        if (Strings::match($path, self::ONLY_ENDS_WITH_ASTERISK_REGEX)) {
             return '*' . $path;
         }
         // starts with *
-        if (Strings::match($path, self::ONLY_STARTS_WITH_ASTERISK_PATTERN)) {
+        if (Strings::match($path, self::ONLY_STARTS_WITH_ASTERISK_REGEX)) {
             return $path . '*';
         }
         return $path;

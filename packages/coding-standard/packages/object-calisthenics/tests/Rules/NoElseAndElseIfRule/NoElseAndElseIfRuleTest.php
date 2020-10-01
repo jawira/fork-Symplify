@@ -6,10 +6,10 @@ namespace Symplify\CodingStandard\ObjectCalisthenics\Tests\Rules\NoElseAndElseIf
 
 use Iterator;
 use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 use Symplify\CodingStandard\ObjectCalisthenics\Rules\NoElseAndElseIfRule;
+use Symplify\PHPStanExtensions\Testing\AbstractServiceAwareRuleTestCase;
 
-final class NoElseAndElseIfRuleTest extends RuleTestCase
+final class NoElseAndElseIfRuleTest extends AbstractServiceAwareRuleTestCase
 {
     /**
      * @dataProvider provideData()
@@ -26,6 +26,9 @@ final class NoElseAndElseIfRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new NoElseAndElseIfRule();
+        return $this->getRuleFromConfig(
+            NoElseAndElseIfRule::class,
+            __DIR__ . '/../../../../../packages/object-calisthenics/config/object-calisthenics-rules.neon'
+        );
     }
 }

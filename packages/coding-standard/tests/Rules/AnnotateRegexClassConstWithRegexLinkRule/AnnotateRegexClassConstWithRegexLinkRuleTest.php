@@ -6,10 +6,10 @@ namespace Symplify\CodingStandard\Tests\Rules\AnnotateRegexClassConstWithRegexLi
 
 use Iterator;
 use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 use Symplify\CodingStandard\Rules\AnnotateRegexClassConstWithRegexLinkRule;
+use Symplify\PHPStanExtensions\Testing\AbstractServiceAwareRuleTestCase;
 
-final class AnnotateRegexClassConstWithRegexLinkRuleTest extends RuleTestCase
+final class AnnotateRegexClassConstWithRegexLinkRuleTest extends AbstractServiceAwareRuleTestCase
 {
     /**
      * @dataProvider provideData()
@@ -29,10 +29,14 @@ final class AnnotateRegexClassConstWithRegexLinkRuleTest extends RuleTestCase
         yield [__DIR__ . '/Fixture/SkipShort.php', []];
         yield [__DIR__ . '/Fixture/SkipWithLink.php', []];
         yield [__DIR__ . '/Fixture/SkipAlphabet.php', []];
+        yield [__DIR__ . '/Fixture/SkipPlaceholder.php', []];
     }
 
     protected function getRule(): Rule
     {
-        return new AnnotateRegexClassConstWithRegexLinkRule();
+        return $this->getRuleFromConfig(
+            AnnotateRegexClassConstWithRegexLinkRule::class,
+            __DIR__ . '/../../../config/symplify-rules.neon'
+        );
     }
 }

@@ -6,6 +6,8 @@ namespace Symplify\ChangelogLinker\ChangeTree\Resolver;
 
 use Nette\Utils\Strings;
 use Symplify\ChangelogLinker\Configuration\Package;
+use Symplify\ChangelogLinker\ValueObject\Option;
+use Symplify\PackageBuilder\Parameter\ParameterProvider;
 
 /**
  * @see \Symplify\ChangelogLinker\Tests\ChangeTree\ChangeFactory\Resolver\PackageResolverTest
@@ -23,19 +25,16 @@ final class PackageResolver
      * - "[Aliased\PackageName] "Message => Aliased\PackageName
      * - "[Aliased\PackageName] "Message => Aliased\PackageName
      */
-    public const PACKAGE_NAME_PATTERN = '#\[(?<package>[-\w\\\\]+)\]( ){1,}#';
+    public const PACKAGE_NAME_REGEX = '#\[(?<package>[-\w\\\\]+)\]( ){1,}#';
 
     /**
      * @var string[]
      */
     private $packageAliases = [];
 
-    /**
-     * @param string[] $packageAliases
-     */
-    public function __construct(array $packageAliases)
+    public function __construct(ParameterProvider $parameterProvider)
     {
-        $this->packageAliases = $packageAliases;
+        $this->packageAliases = $parameterProvider->provideArrayParameter(Option::PACKAGE_ALIASES);
     }
 
     /**
@@ -43,7 +42,7 @@ final class PackageResolver
      */
     public function resolvePackage(string $message): string
     {
-        $match = Strings::match($message, self::PACKAGE_NAME_PATTERN);
+        $match = Strings::match($message, self::PACKAGE_NAME_REGEX);
         if (! isset($match['package'])) {
             return Package::UNKNOWN;
         }
