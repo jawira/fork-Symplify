@@ -43,13 +43,11 @@ The config also loads few return type extensions.
 
 ### Return Type Extensions
 
-#### `Symplify\PHPStanExtensions\Symfony\Type\ContainerGetTypeExtension`
+#### `Symplify\PHPStanExtensions\ReturnTypeExtension\ContainerGetTypeExtension`
 
 With Symfony container and type as an argument, you always know **the same type is returned**:
 
 ```php
-<?php declare(strict_types=1);
-
 use Symfony\Component\DependencyInjection\Container;
 
 /** @var Container $container */
@@ -62,13 +60,11 @@ $container->get(Type::class);
 $this->get(Type::class);
 ```
 
-#### `Symplify\PHPStanExtensions\Symfony\Type\KernelGetContainerAfterBootReturnTypeExtension`
+#### `Symplify\PHPStanExtensions\ReturnTypeExtension\KernelGetContainerAfterBootReturnTypeExtension`
 
 After Symfony Kernel boot, `getContainer()` always returns the container:
 
 ```php
-<?php declare(strict_types=1);
-
 use Symfony\Component\HttpKernel\Kernel;
 
 final class AppKernel extends Kernel
@@ -86,13 +82,11 @@ $kernel->getContainer();
  // Reality: ContainerInterface ✅
 ```
 
-#### `Symplify\PHPStanExtensions\Symfony\Type\SplFileInfoTolerantDynamicMethodReturnTypeExtension`
+#### `Symplify\PHPStanExtensions\ReturnTypeExtension\SplFileInfoTolerantReturnTypeExtension`
 
 Symfony Finder finds only existing files (obviously), so the `getRealPath()` always return `string`:
 
 ```php
-<?php declare(strict_types=1);
-
 use Symfony\Component\Finder\Finder;
 
 $finder = new Finder();
@@ -104,3 +98,13 @@ foreach ($finder as $fileInfo) {
     $fileInfo->getRealPath();
 }
 ```
+
+<br>
+
+## Report Issues
+
+In case you are experiencing a bug or want to request a new feature head over to the [Symplify monorepo issue tracker](https://github.com/symplify/symplify/issues)
+
+## Contribute
+
+The sources of this package are contained in the Symplify monorepo. We welcome contributions for this package on [symplify/symplify](https://github.com/symplify/symplify).

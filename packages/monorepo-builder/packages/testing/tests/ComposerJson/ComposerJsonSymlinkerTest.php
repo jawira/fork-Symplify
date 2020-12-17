@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Symplify\MonorepoBuilder\Testing\Tests\ComposerJson;
 
 use Symplify\ComposerJsonManipulator\FileSystem\JsonFileManager;
 use Symplify\MonorepoBuilder\HttpKernel\MonorepoBuilderKernel;
 use Symplify\MonorepoBuilder\Testing\ComposerJson\ComposerJsonSymlinker;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 use Symplify\SmartFileSystem\SmartFileInfo;
 
 final class ComposerJsonSymlinkerTest extends AbstractKernelTestCase
@@ -23,8 +25,9 @@ final class ComposerJsonSymlinkerTest extends AbstractKernelTestCase
     protected function setUp(): void
     {
         $this->bootKernel(MonorepoBuilderKernel::class);
-        $this->jsonFileManager = self::$container->get(JsonFileManager::class);
-        $this->composerJsonSymlinker = self::$container->get(ComposerJsonSymlinker::class);
+
+        $this->jsonFileManager = $this->getService(JsonFileManager::class);
+        $this->composerJsonSymlinker = $this->getService(ComposerJsonSymlinker::class);
     }
 
     public function testItCanAppendPathRepository(): void

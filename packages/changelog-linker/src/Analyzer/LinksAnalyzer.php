@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Symplify\ChangelogLinker\Analyzer;
 
 use Nette\Utils\Strings;
-use Symplify\ChangelogLinker\Regex\RegexPattern;
+use Symplify\ChangelogLinker\ValueObject\RegexPattern;
 
 /**
  * @see \Symplify\ChangelogLinker\Tests\Analyzer\LinksAnalyzer\LinksAnalyzerTest
@@ -14,6 +14,7 @@ final class LinksAnalyzer
 {
     /**
      * @var string
+     * @see https://regex101.com/r/8L3ZvQ/1
      */
     private const REFERENCE_REGEX = '#\[\#?(?<reference>[(-\/@\w\d\.]+)\](?!:)(?!\()#';
 
@@ -31,14 +32,16 @@ final class LinksAnalyzer
     {
         // [content]: url
         $this->linkedIds = [];
-        foreach (Strings::matchAll($content, RegexPattern::LINK_REFERENCE_REGEX) as $match) {
+        $matches = Strings::matchAll($content, RegexPattern::LINK_REFERENCE_REGEX);
+        foreach ($matches as $match) {
             $this->linkedIds[] = $match['reference'];
         }
         $this->linkedIds = array_unique($this->linkedIds);
 
         // [content]
         $this->references = [];
-        foreach (Strings::matchAll($content, self::REFERENCE_REGEX) as $match) {
+        $matches = Strings::matchAll($content, self::REFERENCE_REGEX);
+        foreach ($matches as $match) {
             $this->references[] = $match['reference'];
         }
         $this->references = array_unique($this->references);

@@ -6,6 +6,7 @@ namespace Symplify\MonorepoBuilder\Utils;
 
 use PharIo\Version\Version;
 use Symplify\MonorepoBuilder\ValueObject\Option;
+use Symplify\MonorepoBuilder\ValueObjectFactory\VersionFactory;
 use Symplify\PackageBuilder\Parameter\ParameterProvider;
 
 /**
@@ -18,9 +19,15 @@ final class VersionUtils
      */
     private $packageAliasFormat;
 
-    public function __construct(ParameterProvider $parameterProvider)
+    /**
+     * @var VersionFactory
+     */
+    private $versionFactory;
+
+    public function __construct(ParameterProvider $parameterProvider, VersionFactory $versionFactory)
     {
         $this->packageAliasFormat = $parameterProvider->provideStringParameter(Option::PACKAGE_ALIAS_FORMAT);
+        $this->versionFactory = $versionFactory;
     }
 
     /**
@@ -30,6 +37,7 @@ final class VersionUtils
     {
         $version = $this->normalizeVersion($version);
 
+        /** @var Version $minor */
         $minor = $this->getNextMinorNumber($version);
 
         return str_replace(
@@ -74,7 +82,7 @@ final class VersionUtils
     private function normalizeVersion($version): Version
     {
         if (is_string($version)) {
-            return new Version($version);
+            return $this->versionFactory->create($version);
         }
 
         return $version;
@@ -82,6 +90,12 @@ final class VersionUtils
 
     private function getNextMinorNumber(Version $version): int
     {
-        return $version->hasPreReleaseSuffix() ? (int) $version->getMinor()->getValue() : $version->getMinor()->getValue() + 1;
+        if ($version->hasPreReleaseSuffix()) {
+            return (int) $version->getMinor()
+                ->getValue();
+        }
+
+        return $version->getMinor()
+            ->getValue() + 1;
     }
 }

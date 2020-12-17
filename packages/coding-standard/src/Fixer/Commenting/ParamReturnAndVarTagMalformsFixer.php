@@ -19,6 +19,9 @@ use Symplify\CodingStandard\TokenRunner\DocBlock\MalformWorker\ParamNameTypoMalf
 use Symplify\CodingStandard\TokenRunner\DocBlock\MalformWorker\SuperfluousReturnNameMalformWorker;
 use Symplify\CodingStandard\TokenRunner\DocBlock\MalformWorker\SuperfluousVarNameMalformWorker;
 use Symplify\CodingStandard\TokenRunner\DocBlock\MalformWorker\SwitchedTypeAndNameMalformWorker;
+use Symplify\RuleDocGenerator\Contract\DocumentedRuleInterface;
+use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
+use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
 /**
  * @see ParamNameTypoMalformWorker
@@ -30,10 +33,16 @@ use Symplify\CodingStandard\TokenRunner\DocBlock\MalformWorker\SwitchedTypeAndNa
  *
  * @see \Symplify\CodingStandard\Tests\Fixer\Commenting\ParamReturnAndVarTagMalformsFixer\ParamReturnAndVarTagMalformsFixerTest
  */
-final class ParamReturnAndVarTagMalformsFixer extends AbstractSymplifyFixer
+final class ParamReturnAndVarTagMalformsFixer extends AbstractSymplifyFixer implements DocumentedRuleInterface
 {
     /**
      * @var string
+     */
+    private const ERROR_MESSAGE = 'Fixes @param, @return, @var and inline @var annotations broken formats';
+
+    /**
+     * @var string
+     * @see https://regex101.com/r/8iqNuR/1
      */
     private const TYPE_ANNOTATION_REGEX = '#@(param|return|var)#';
 
@@ -52,10 +61,7 @@ final class ParamReturnAndVarTagMalformsFixer extends AbstractSymplifyFixer
 
     public function getDefinition(): FixerDefinitionInterface
     {
-        return new FixerDefinition(
-            'The @param, @return, @var and inline @var annotations should keep standard format',
-            []
-        );
+        return new FixerDefinition(self::ERROR_MESSAGE, []);
     }
 
     public function isCandidate(Tokens $tokens): bool
@@ -66,7 +72,8 @@ final class ParamReturnAndVarTagMalformsFixer extends AbstractSymplifyFixer
 
     public function fix(SplFileInfo $file, Tokens $tokens): void
     {
-        foreach ($this->reverseTokens($tokens) as $index => $token) {
+        $reverseTokens = $this->reverseTokens($tokens);
+        foreach ($reverseTokens as $index => $token) {
             if (! $token->isGivenKind([T_DOC_COMMENT, T_COMMENT])) {
                 continue;
             }
@@ -92,5 +99,30 @@ final class ParamReturnAndVarTagMalformsFixer extends AbstractSymplifyFixer
     public function getPriority(): int
     {
         return $this->getPriorityBefore(PhpdocAlignFixer::class);
+    }
+
+    public function getRuleDefinition(): RuleDefinition
+    {
+        return new RuleDefinition(self::ERROR_MESSAGE, [
+            new CodeSample(
+                <<<'CODE_SAMPLE'
+/**
+ * @param string
+ */
+function getPerson($name)
+{
+}
+CODE_SAMPLE
+                ,
+                <<<'CODE_SAMPLE'
+/**
+ * @param string $name
+ */
+function getPerson($name)
+{
+}
+CODE_SAMPLE
+            ),
+        ]);
     }
 }

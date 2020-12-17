@@ -42,7 +42,8 @@ final class DoctrineEntityMappingAutodiscoverer implements AutodiscovererInterfa
     public function autodiscover(): void
     {
         $entityMappings = [];
-        foreach ($this->autodiscoveryFinder->getEntityDirectories() as $entityDirectory) {
+        $entityDirectories = $this->autodiscoveryFinder->getEntityDirectories();
+        foreach ($entityDirectories as $entityDirectory) {
             $namespace = $this->namespaceDetector->detectFromDirectory($entityDirectory);
             if (! $namespace) {
                 continue;
@@ -111,14 +112,14 @@ final class DoctrineEntityMappingAutodiscoverer implements AutodiscovererInterfa
 
     /**
      * @param SmartFileInfo[] $smartFileInfos
-     * @return SmartFileInfo[][]
+     * @return array<string, SmartFileInfo[]>
      */
     private function groupFileInfosByDirectory(array $smartFileInfos): array
     {
         $filesByDirectory = [];
 
-        foreach ($smartFileInfos as $entityXmlFile) {
-            $filesByDirectory[$entityXmlFile->getPath()][] = $entityXmlFile;
+        foreach ($smartFileInfos as $entityXmlFileInfo) {
+            $filesByDirectory[$entityXmlFileInfo->getPath()][] = $entityXmlFileInfo;
         }
 
         return $filesByDirectory;

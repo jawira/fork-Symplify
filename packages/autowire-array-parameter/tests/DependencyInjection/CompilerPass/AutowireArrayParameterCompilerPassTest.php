@@ -6,7 +6,7 @@ namespace Symplify\AutowireArrayParameter\Tests\DependencyInjection\CompilerPass
 
 use Symplify\AutowireArrayParameter\Tests\HttpKernel\AutowireArrayParameterHttpKernel;
 use Symplify\AutowireArrayParameter\Tests\Source\SomeCollector;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 
 final class AutowireArrayParameterCompilerPassTest extends AbstractKernelTestCase
 {
@@ -15,7 +15,7 @@ final class AutowireArrayParameterCompilerPassTest extends AbstractKernelTestCas
         $this->bootKernel(AutowireArrayParameterHttpKernel::class);
 
         /** @var SomeCollector $someCollector */
-        $someCollector = self::$container->get(SomeCollector::class);
+        $someCollector = $this->getService(SomeCollector::class);
         $this->assertCount(2, $someCollector->getCollected());
     }
 }

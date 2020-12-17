@@ -9,7 +9,7 @@ use Symplify\ChangelogLinker\ChangelogLinker;
 use Symplify\ChangelogLinker\HttpKernel\ChangelogLinkerKernel;
 use Symplify\EasyTesting\DataProvider\StaticFixtureFinder;
 use Symplify\EasyTesting\StaticFixtureSplitter;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 use Symplify\SmartFileSystem\SmartFileInfo;
 
 /**
@@ -29,8 +29,8 @@ final class ChangelogLinkerTest extends AbstractKernelTestCase
 
     protected function setUp(): void
     {
-        $this->bootKernelWithConfigs(ChangelogLinkerKernel::class, [__DIR__ . '/config/test_config.yaml']);
-        $this->changelogLinker = self::$container->get(ChangelogLinker::class);
+        $this->bootKernelWithConfigs(ChangelogLinkerKernel::class, [__DIR__ . '/config/test_config.php']);
+        $this->changelogLinker = $this->getService(ChangelogLinker::class);
     }
 
     /**

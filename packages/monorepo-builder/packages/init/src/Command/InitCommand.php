@@ -4,22 +4,16 @@ declare(strict_types=1);
 
 namespace Symplify\MonorepoBuilder\Init\Command;
 
-use Jean85\PrettyVersions;
-use Nette\Utils\Json as NetteJson;
-use OutOfBoundsException;
-use PharIo\Version\InvalidVersionException;
 use PharIo\Version\Version;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
-use Symplify\PackageBuilder\Console\Command\CommandNaming;
+use Symplify\MonorepoBuilder\Init\Composer\PackageNameVersionProvider;
+use Symplify\MonorepoBuilder\ValueObject\File;
+use Symplify\PackageBuilder\Console\Command\AbstractSymplifyCommand;
 use Symplify\PackageBuilder\Console\ShellCode;
-use Symplify\SmartFileSystem\SmartFileSystem;
-use function dirname;
 
-final class InitCommand extends Command
+final class InitCommand extends AbstractSymplifyCommand
 {
     /**
      * @var string
@@ -27,26 +21,19 @@ final class InitCommand extends Command
     private const OUTPUT = 'output';
 
     /**
-     * @var SymfonyStyle
+     * @var PackageNameVersionProvider
      */
-    private $symfonyStyle;
+    private $packageNameVersionProvider;
 
-    /**
-     * @var SmartFileSystem
-     */
-    private $smartFileSystem;
-
-    public function __construct(SymfonyStyle $symfonyStyle, SmartFileSystem $smartFileSystem)
+    public function __construct(PackageNameVersionProvider $monorepoBuilderVersionExtractor)
     {
-        parent::__construct();
+        $this->packageNameVersionProvider = $monorepoBuilderVersionExtractor;
 
-        $this->symfonyStyle = $symfonyStyle;
-        $this->smartFileSystem = $smartFileSystem;
+        parent::__construct();
     }
 
     protected function configure(): void
     {
-        $this->setName(CommandNaming::classToName(self::class));
         $this->setDescription('Creates empty monorepo directory and composer.json structure.');
         $this->addArgument(self::OUTPUT, InputArgument::OPTIONAL, 'Directory to generate monorepo into.', getcwd());
     }
@@ -58,11 +45,15 @@ final class InitCommand extends Command
 
         $this->smartFileSystem->mirror(__DIR__ . '/../../templates/monorepo', $output);
 
-        // Replace MonorepoBuilder version in monorepo-builder.yml
-        $filename = sprintf('%s/monorepo-builder.yaml', $output);
+        // Replace MonorepoBuilder version in monorepo-builder.php
+        $filename = sprintf('%s/%s', $output, File::CONFIG);
 
         $fileContent = $this->smartFileSystem->readFile($filename);
-        $content = str_replace('<version>', $this->getMonorepoBuilderVersion(), $fileContent);
+        $content = str_replace(
+            '<version>',
+            $this->packageNameVersionProvider->provide('symplify/monorepo-builder'),
+            $fileContent
+        );
 
         $this->smartFileSystem->dumpFile($filename, $content);
 
@@ -74,48 +65,5 @@ final class InitCommand extends Command
         $this->symfonyStyle->note($message);
 
         return ShellCode::SUCCESS;
-    }
-
-    /**
-     * Returns current version of MonorepoBuilder, contains only major and minor.
-     */
-    private function getMonorepoBuilderVersion(): string
-    {
-        $version = null;
-
-        try {
-            $prettyVersion = PrettyVersions::getVersion('symplify/monorepo-builder')->getPrettyVersion();
-            $version = new Version(str_replace('x-dev', '0', $prettyVersion));
-        } catch (OutOfBoundsException | InvalidVersionException $exceptoin) {
-            // Version might not be explicitly set inside composer.json, looking for "vendor/composer/installed.json"
-            $version = $this->extractMonorepoBuilderVersionFromComposer();
-        }
-
-        if ($version === null) {
-            return 'Unknown';
-        }
-
-        return sprintf('^%d.%d', $version->getMajor()->getValue(), $version->getMinor()->getValue());
-    }
-
-    /**
-     * Returns current version of MonorepoBuilder extracting it from "vendor/composer/installed.json".
-     */
-    private function extractMonorepoBuilderVersionFromComposer(): ?Version
-    {
-        $installedJsonFilename = sprintf('%s/composer/installed.json', dirname(__DIR__, 6));
-
-        if (is_file($installedJsonFilename)) {
-            $installedJsonFileContent = $this->smartFileSystem->readFile($installedJsonFilename);
-            $installedJson = NetteJson::decode($installedJsonFileContent);
-
-            foreach ($installedJson as $installedPackage) {
-                if ($installedPackage->name === 'symplify/monorepo-builder') {
-                    return new Version($installedPackage->version);
-                }
-            }
-        }
-
-        return null;
     }
 }

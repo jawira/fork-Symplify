@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Symplify\EasyCodingStandard\Console\Output;
 
+use Jean85\PrettyVersions;
 use Nette\Utils\Json;
 use Symplify\EasyCodingStandard\Configuration\Configuration;
 use Symplify\EasyCodingStandard\Console\Style\EasyCodingStandardStyle;
@@ -60,15 +61,18 @@ final class JsonOutputFormatter implements OutputFormatterInterface
             $errorsArray['meta']['config'] = $firstResolvedConfigFileInfo->getRealPath();
         }
 
-        foreach ($errorAndDiffResult->getErrors() as $codingStandardError) {
+        $codingStandardErrors = $errorAndDiffResult->getErrors();
+        foreach ($codingStandardErrors as $codingStandardError) {
             $errorsArray['files'][$codingStandardError->getRelativeFilePathFromCwd()]['errors'][] = [
                 'line' => $codingStandardError->getLine(),
+                'file_path' => $codingStandardError->getRelativeFilePathFromCwd(),
                 'message' => $codingStandardError->getMessage(),
                 'source_class' => $codingStandardError->getCheckerClass(),
             ];
         }
 
-        foreach ($errorAndDiffResult->getFileDiffs() as $fileDiff) {
+        $fileDiffs = $errorAndDiffResult->getFileDiffs();
+        foreach ($fileDiffs as $fileDiff) {
             $errorsArray['files'][$fileDiff->getRelativeFilePathFromCwd()]['diffs'][] = [
                 'diff' => $fileDiff->getDiff(),
                 'applied_checkers' => $fileDiff->getAppliedCheckers(),
@@ -83,9 +87,11 @@ final class JsonOutputFormatter implements OutputFormatterInterface
      */
     private function createBaseErrorsArray(ErrorAndDiffResult $errorAndDiffResult): array
     {
+        $version = PrettyVersions::getVersion('symplify/easy-coding-standard');
+
         return [
             'meta' => [
-                'version' => $this->configuration->getPrettyVersion(),
+                'version' => $version->getPrettyVersion() ?: 'Unknown',
             ],
             'totals' => [
                 'errors' => $errorAndDiffResult->getErrorCount(),

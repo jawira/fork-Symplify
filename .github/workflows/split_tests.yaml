@@ -2,44 +2,59 @@ name: Split Tests
 
 on:
     pull_request: null
-    push:
-        branches:
-            - master
+
+env:
+    # see https://github.com/composer/composer/issues/9368#issuecomment-718112361
+    COMPOSER_ROOT_VERSION: "dev-master"
 
 jobs:
-    after_split_testing:
+    provide_packages_json:
+        # see json juggling: https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#example-6
         runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                package_name:
-                    - autowire-array-parameter
-                    - smart-file-system
-                    - package-builder
-                    - easy-coding-standard
-                    - easy-coding-standard-tester
-                    - coding-standard
-                    - changelog-linker
-                    - monorepo-builder
-                    - flex-loader
-                    - autodiscovery
-                    - set-config-resolver
+        steps:
+            -   uses: actions/checkout@v2
 
-        name: Split Tests of ${{ matrix.package_name }}
+            -   uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 7.4
+                    coverage: none
+
+            -   run: composer install --no-progress --ansi
+
+            # get package json list
+            -
+                id: output_data
+                run: echo "::set-output name=matrix::$(packages/monorepo-builder/bin/monorepo-builder packages-json)"
+
+        outputs:
+            matrix: ${{ steps.output_data.outputs.matrix }}
+
+    split_tests:
+        needs: provide_packages_json
+
+        runs-on: ubuntu-latest
+
+        strategy:
+            fail-fast: false
+            matrix:
+                package: ${{ fromJson(needs.provide_packages_json.outputs.matrix )}}
+
+        name: Split Tests of ${{ matrix.package }}
 
         steps:
             -   uses: actions/checkout@v2
-            -   uses: shivammathur/setup-php@v1
+
+            -   uses: shivammathur/setup-php@v2
                 with:
                     php-version: 7.3
                     coverage: none
 
-            -   run: |
-                    composer install --no-progress --ansi
-                    packages/monorepo-builder/bin/monorepo-builder localize-composer-paths --ansi
+            -   run: composer install --no-progress --ansi
 
-                    cd packages/${{ matrix.package_name }}
-                    composer update --no-progress --ansi
+            -   run: packages/monorepo-builder/bin/monorepo-builder localize-composer-paths packages/${{ matrix.package }}/composer.json --ansi
 
-            -   run: |
-                    cd packages/${{ matrix.package_name }}
-                    vendor/bin/phpunit
+            -   run: composer update --no-progress --ansi --working-dir packages/${{ matrix.package }}
+
+            -
+                working-directory: packages/${{ matrix.package }}
+                run: vendor/bin/phpunit

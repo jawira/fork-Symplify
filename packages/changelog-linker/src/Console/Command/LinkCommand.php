@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace Symplify\ChangelogLinker\Console\Command;
 
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symplify\ChangelogLinker\ChangelogLinker;
 use Symplify\ChangelogLinker\FileSystem\ChangelogFileSystem;
-use Symplify\PackageBuilder\Console\Command\CommandNaming;
+use Symplify\PackageBuilder\Console\Command\AbstractSymplifyCommand;
 use Symplify\PackageBuilder\Console\ShellCode;
 
-final class LinkCommand extends Command
+final class LinkCommand extends AbstractSymplifyCommand
 {
     /**
      * @var ChangelogLinker
@@ -25,26 +23,16 @@ final class LinkCommand extends Command
      */
     private $changelogFileSystem;
 
-    /**
-     * @var SymfonyStyle
-     */
-    private $symfonyStyle;
-
-    public function __construct(
-        ChangelogLinker $changelogLinker,
-        ChangelogFileSystem $changelogFileSystem,
-        SymfonyStyle $symfonyStyle
-    ) {
+    public function __construct(ChangelogLinker $changelogLinker, ChangelogFileSystem $changelogFileSystem)
+    {
         parent::__construct();
 
         $this->changelogLinker = $changelogLinker;
         $this->changelogFileSystem = $changelogFileSystem;
-        $this->symfonyStyle = $symfonyStyle;
     }
 
     protected function configure(): void
     {
-        $this->setName(CommandNaming::classToName(self::class));
         $this->setDescription('Adds links to CHANGELOG.md');
     }
 

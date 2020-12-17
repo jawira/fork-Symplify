@@ -15,6 +15,7 @@ final class RoutesProvider
 {
     /**
      * @var string
+     * @see https://regex101.com/r/VxkiVa/1
      */
     private const PARAMETERS_IN_ROUTE_REGEX = '#\{(.*?)\}#sm';
 
@@ -33,8 +34,8 @@ final class RoutesProvider
      */
     public function provide(): array
     {
-        return $this->router->getRouteCollection()
-            ->all();
+        $routeCollection = $this->router->getRouteCollection();
+        return $routeCollection->all();
     }
 
     /**

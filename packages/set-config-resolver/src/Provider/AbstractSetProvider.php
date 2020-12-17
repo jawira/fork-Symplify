@@ -7,8 +7,8 @@ namespace Symplify\SetConfigResolver\Provider;
 use Nette\Utils\Strings;
 use Symplify\SetConfigResolver\Contract\SetProviderInterface;
 use Symplify\SetConfigResolver\Exception\SetNotFoundException;
-use Symplify\SetConfigResolver\Exception\ShouldNotHappenException;
 use Symplify\SetConfigResolver\ValueObject\Set;
+use Symplify\SymplifyKernel\Exception\ShouldNotHappenException;
 
 abstract class AbstractSetProvider implements SetProviderInterface
 {
@@ -18,7 +18,8 @@ abstract class AbstractSetProvider implements SetProviderInterface
     public function provideSetNames(): array
     {
         $setNames = [];
-        foreach ($this->provide() as $set) {
+        $sets = $this->provide();
+        foreach ($sets as $set) {
             $setNames[] = $set->getName();
         }
 
@@ -28,7 +29,8 @@ abstract class AbstractSetProvider implements SetProviderInterface
     public function provideByName(string $desiredSetName): ?Set
     {
         // 1. name-based approach
-        foreach ($this->provide() as $set) {
+        $sets = $this->provide();
+        foreach ($sets as $set) {
             if ($set->getName() !== $desiredSetName) {
                 continue;
             }
@@ -38,10 +40,11 @@ abstract class AbstractSetProvider implements SetProviderInterface
 
         // 2. path-based approach
         try {
-            foreach ($this->provide() as $set) {
+            $sets = $this->provide();
+            foreach ($sets as $set) {
                 // possible bug for PHAR files, see https://bugs.php.net/bug.php?id=52769
                 // this is very tricky to handle, see https://stackoverflow.com/questions/27838025/how-to-get-a-phar-file-real-directory-within-the-phar-file-code
-                $setUniqueId = $this->resolveSetUniquePathId($set->getSetFileInfo()->getPathname());
+                $setUniqueId = $this->resolveSetUniquePathId($set->getSetPathname());
                 $desiredSetUniqueId = $this->resolveSetUniquePathId($desiredSetName);
 
                 if ($setUniqueId !== $desiredSetUniqueId) {

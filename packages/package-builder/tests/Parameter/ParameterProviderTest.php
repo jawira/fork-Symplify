@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Symplify\PackageBuilder\Tests\Parameter;
 
 use Symplify\PackageBuilder\Parameter\ParameterProvider;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 use Symplify\PackageBuilder\Tests\HttpKernel\PackageBuilderTestKernel;
 
 final class ParameterProviderTest extends AbstractKernelTestCase
@@ -17,7 +17,7 @@ final class ParameterProviderTest extends AbstractKernelTestCase
             [__DIR__ . '/ParameterProviderSource/config.yml']
         );
 
-        $parameterProvider = self::$container->get(ParameterProvider::class);
+        $parameterProvider = $this->getService(ParameterProvider::class);
 
         $parameters = $parameterProvider->provide();
         $this->assertArrayHasKey('key', $parameters);
@@ -38,10 +38,10 @@ final class ParameterProviderTest extends AbstractKernelTestCase
     {
         $this->bootKernelWithConfigs(
             PackageBuilderTestKernel::class,
-            [__DIR__ . '/ParameterProviderSource/Yaml/including-config.yml']
+            [__DIR__ . '/ParameterProviderSource/Yaml/including-config.php']
         );
 
-        $parameterProvider = self::$container->get(ParameterProvider::class);
+        $parameterProvider = $this->getService(ParameterProvider::class);
 
         $parameters = $parameterProvider->provide();
         $this->assertArrayHasKey('one', $parameters);

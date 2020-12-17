@@ -8,9 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symplify\EasyCodingStandard\Console\Command\AbstractCheckCommand;
 use Symplify\EasyCodingStandard\SnippetFormatter\Formatter\SnippetFormatter;
 use Symplify\PackageBuilder\Console\ShellCode;
-use Symplify\SmartFileSystem\Finder\SmartFinder;
 use Symplify\SmartFileSystem\SmartFileInfo;
-use Symplify\SmartFileSystem\SmartFileSystem;
 
 abstract class AbstractSnippetFormatterCommand extends AbstractCheckCommand
 {
@@ -20,57 +18,41 @@ abstract class AbstractSnippetFormatterCommand extends AbstractCheckCommand
     private $snippetFormatter;
 
     /**
-     * @var SmartFileSystem
-     */
-    private $smartFileSystem;
-
-    /**
-     * @var SmartFinder
-     */
-    private $smartFinder;
-
-    /**
      * @required
      */
-    public function autowireAbstractSnippetFormatterCommand(
-        SnippetFormatter $snippetFormatter,
-        SmartFileSystem $smartFileSystem,
-        SmartFinder $smartFinder
-    ): void {
+    public function autowireAbstractSnippetFormatterCommand(SnippetFormatter $snippetFormatter): void
+    {
         $this->snippetFormatter = $snippetFormatter;
-        $this->smartFileSystem = $smartFileSystem;
-        $this->smartFinder = $smartFinder;
     }
 
     protected function doExecuteSnippetFormatterWithFileNamesAndSnippetPattern(
         InputInterface $input,
         string $fileNames,
-        string $snippetPattern
+        string $snippetPattern,
+        string $kind
     ): int {
         $this->configuration->resolveFromInput($input);
 
         $sources = $this->configuration->getSources();
-        $phpFileInfos = $this->smartFinder->find($sources, $fileNames);
+        $phpFileInfos = $this->smartFinder->find($sources, $fileNames, ['Fixture']);
 
         $fileCount = count($phpFileInfos);
-
         if ($fileCount === 0) {
             return $this->printNoFilesFoundWarningAndExitSuccess($sources, $fileNames);
         }
 
         $this->easyCodingStandardStyle->progressStart($fileCount);
         foreach ($phpFileInfos as $phpFileInfo) {
-            $this->processFileInfoWithPattern($phpFileInfo, $snippetPattern);
+            $this->processFileInfoWithPattern($phpFileInfo, $snippetPattern, $kind);
             $this->easyCodingStandardStyle->progressAdvance();
         }
 
         return $this->reportProcessedFiles($fileCount);
     }
 
-    private function processFileInfoWithPattern(SmartFileInfo $phpFileInfo, string $snippetPattern): void
+    private function processFileInfoWithPattern(SmartFileInfo $phpFileInfo, string $snippetPattern, string $kind): void
     {
-        $fixedContent = $this->snippetFormatter->format($phpFileInfo, $snippetPattern);
-
+        $fixedContent = $this->snippetFormatter->format($phpFileInfo, $snippetPattern, $kind);
         if ($phpFileInfo->getContents() === $fixedContent) {
             // nothing has changed
             return;
@@ -80,7 +62,7 @@ abstract class AbstractSnippetFormatterCommand extends AbstractCheckCommand
             return;
         }
 
-        $this->smartFileSystem->dumpFile($phpFileInfo->getPathname(), (string) $fixedContent);
+        $this->smartFileSystem->dumpFile($phpFileInfo->getPathname(), $fixedContent);
     }
 
     /**

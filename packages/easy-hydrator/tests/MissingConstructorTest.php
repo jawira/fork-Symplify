@@ -8,7 +8,7 @@ use Symplify\EasyHydrator\ArrayToValueObjectHydrator;
 use Symplify\EasyHydrator\Exception\MissingConstructorException;
 use Symplify\EasyHydrator\Tests\Fixture\NoConstructor;
 use Symplify\EasyHydrator\Tests\HttpKernel\EasyHydratorTestKernel;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 
 final class MissingConstructorTest extends AbstractKernelTestCase
 {
@@ -21,7 +21,7 @@ final class MissingConstructorTest extends AbstractKernelTestCase
     {
         $this->bootKernel(EasyHydratorTestKernel::class);
 
-        $this->arrayToValueObjectHydrator = self::$container->get(ArrayToValueObjectHydrator::class);
+        $this->arrayToValueObjectHydrator = $this->getService(ArrayToValueObjectHydrator::class);
     }
 
     public function test(): void

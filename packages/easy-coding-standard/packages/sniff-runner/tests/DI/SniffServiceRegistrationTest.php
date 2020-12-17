@@ -7,7 +7,7 @@ namespace Symplify\EasyCodingStandard\SniffRunner\Tests\DI;
 use PHP_CodeSniffer\Standards\Generic\Sniffs\Files\LineLengthSniff;
 use Symplify\EasyCodingStandard\HttpKernel\EasyCodingStandardKernel;
 use Symplify\EasyCodingStandard\SniffRunner\Application\SniffFileProcessor;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 
 final class SniffServiceRegistrationTest extends AbstractKernelTestCase
 {
@@ -15,10 +15,10 @@ final class SniffServiceRegistrationTest extends AbstractKernelTestCase
     {
         static::bootKernelWithConfigs(
             EasyCodingStandardKernel::class,
-            [__DIR__ . '/SniffServiceRegistrationSource/easy-coding-standard.yml']
+            [__DIR__ . '/SniffServiceRegistrationSource/easy-coding-standard.php']
         );
 
-        $sniffFileProcessor = self::$container->get(SniffFileProcessor::class);
+        $sniffFileProcessor = $this->getService(SniffFileProcessor::class);
 
         /** @var LineLengthSniff $lineLengthSniff */
         $lineLengthSniff = $sniffFileProcessor->getCheckers()[0];

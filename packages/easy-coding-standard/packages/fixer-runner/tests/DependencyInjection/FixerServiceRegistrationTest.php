@@ -6,12 +6,10 @@ namespace Symplify\EasyCodingStandard\FixerRunner\Tests\DependencyInjection;
 
 use PhpCsFixer\Fixer\ArrayNotation\ArraySyntaxFixer;
 use PhpCsFixer\Fixer\ClassNotation\VisibilityRequiredFixer;
-use PhpCsFixer\Fixer\Strict\StrictParamFixer;
-use Symplify\EasyCodingStandard\Exception\DependencyInjection\Extension\FixerIsNotConfigurableException;
 use Symplify\EasyCodingStandard\FixerRunner\Application\FixerFileProcessor;
 use Symplify\EasyCodingStandard\HttpKernel\EasyCodingStandardKernel;
 use Symplify\PackageBuilder\Reflection\PrivatesAccessor;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 
 final class FixerServiceRegistrationTest extends AbstractKernelTestCase
 {
@@ -29,10 +27,10 @@ final class FixerServiceRegistrationTest extends AbstractKernelTestCase
     {
         $this->bootKernelWithConfigs(
             EasyCodingStandardKernel::class,
-            [__DIR__ . '/FixerServiceRegistrationSource/easy-coding-standard.yml']
+            [__DIR__ . '/FixerServiceRegistrationSource/easy-coding-standard.php']
         );
 
-        $fixerFileProcessor = self::$container->get(FixerFileProcessor::class);
+        $fixerFileProcessor = $this->getService(FixerFileProcessor::class);
 
         $checkers = $fixerFileProcessor->getCheckers();
         $this->assertCount(2, $checkers);
@@ -54,20 +52,5 @@ final class FixerServiceRegistrationTest extends AbstractKernelTestCase
         $this->assertSame([
             'elements' => ['property'],
         ], $configuration);
-    }
-
-    public function testConfigureUnconfigurableFixer(): void
-    {
-        $this->expectException(FixerIsNotConfigurableException::class);
-        $expectedErrorMessage = sprintf(
-            'Fixer "%s" is not configurable with configuration: {"be_strict":"yea"}.',
-            StrictParamFixer::class
-        );
-        $this->expectExceptionMessage($expectedErrorMessage);
-
-        $this->bootKernelWithConfigs(
-            EasyCodingStandardKernel::class,
-            [__DIR__ . '/FixerServiceRegistrationSource/non-configurable-fixer.yml']
-        );
     }
 }

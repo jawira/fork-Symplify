@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Symplify\EasyCodingStandard\Configuration;
 
-use Jean85\PrettyVersions;
 use Symfony\Component\Console\Input\InputInterface;
 use Symplify\EasyCodingStandard\Console\Output\ConsoleOutputFormatter;
 use Symplify\EasyCodingStandard\Console\Output\JsonOutputFormatter;
@@ -13,11 +12,6 @@ use Symplify\EasyCodingStandard\ValueObject\Option;
 use Symplify\PackageBuilder\Parameter\ParameterProvider;
 use Symplify\SmartFileSystem\SmartFileInfo;
 
-/**
- * @deprecated
- * This noun name looks like value object, while it is actually a service.
- * Should be rename to ConfigurationManager or something like this.
- */
 final class Configuration
 {
     /**
@@ -60,6 +54,11 @@ final class Configuration
      */
     private $outputFormat = ConsoleOutputFormatter::NAME;
 
+    /**
+     * @var bool
+     */
+    private $doesMatchGitDiff = false;
+
     public function __construct(ParameterProvider $parameterProvider)
     {
         $this->paths = $parameterProvider->provideArrayParameter(Option::PATHS);
@@ -70,10 +69,10 @@ final class Configuration
      */
     public function resolveFromInput(InputInterface $input): void
     {
-        /** @var string[] $sources */
-        $sources = (array) $input->getArgument(Option::SOURCES);
-        if ($sources !== []) {
-            $this->setSources($sources);
+        /** @var string[] $paths */
+        $paths = (array) $input->getArgument(Option::PATHS);
+        if ($paths !== []) {
+            $this->setSources($paths);
         } else {
             // if not paths are provided from CLI, use the config ones
             $this->setSources($this->getPaths());
@@ -83,6 +82,7 @@ final class Configuration
         $this->shouldClearCache = (bool) $input->getOption(Option::CLEAR_CACHE);
         $this->showProgressBar = $this->canShowProgressBar($input);
         $this->showErrorTable = ! (bool) $input->getOption(Option::NO_ERROR_TABLE);
+        $this->doesMatchGitDiff = (bool) $input->getOption(Option::MATCH_GIT_DIFF);
 
         $this->setOutputFormat($input);
     }
@@ -133,13 +133,6 @@ final class Configuration
         return $this->firstResolvedConfigFileInfo;
     }
 
-    public function getPrettyVersion(): string
-    {
-        $version = PrettyVersions::getVersion('symplify/easy-coding-standard');
-
-        return $version->getPrettyVersion();
-    }
-
     /**
      * @param string[] $sources
      */
@@ -169,6 +162,11 @@ final class Configuration
     public function enableFixing(): void
     {
         $this->isFixer = true;
+    }
+
+    public function doesMatchGitDiff(): bool
+    {
+        return $this->doesMatchGitDiff;
     }
 
     private function canShowProgressBar(InputInterface $input): bool

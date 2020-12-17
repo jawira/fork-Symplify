@@ -6,7 +6,8 @@ use SebastianBergmann\Diff\Differ;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symplify\PackageBuilder\Console\Style\SymfonyStyleFactory;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
+use Symplify\PackageBuilder\Reflection\PrivatesAccessor;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
@@ -21,7 +22,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(Differ::class);
 
     $services->set(SymfonyStyleFactory::class);
-
     $services->set(SymfonyStyle::class)
-        ->factory([ref(SymfonyStyleFactory::class), 'create']);
+        ->factory([service(SymfonyStyleFactory::class), 'create']);
+
+    $services->set(PrivatesAccessor::class);
 };

@@ -10,7 +10,7 @@ use Symplify\EasyCodingStandard\Console\Output\JsonOutputFormatter;
 use Symplify\EasyCodingStandard\Error\ErrorAndDiffCollector;
 use Symplify\EasyCodingStandard\Error\ErrorAndDiffResultFactory;
 use Symplify\EasyCodingStandard\HttpKernel\EasyCodingStandardKernel;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 use Symplify\SmartFileSystem\SmartFileInfo;
 
 final class JsonOutputFormatterTest extends AbstractKernelTestCase
@@ -34,9 +34,9 @@ final class JsonOutputFormatterTest extends AbstractKernelTestCase
     {
         $this->bootKernel(EasyCodingStandardKernel::class);
 
-        $this->jsonOutputFormatter = self::$container->get(JsonOutputFormatter::class);
-        $this->errorAndDiffCollector = self::$container->get(ErrorAndDiffCollector::class);
-        $this->errorAndDiffResultFactory = self::$container->get(ErrorAndDiffResultFactory::class);
+        $this->jsonOutputFormatter = $this->getService(JsonOutputFormatter::class);
+        $this->errorAndDiffCollector = $this->getService(ErrorAndDiffCollector::class);
+        $this->errorAndDiffResultFactory = $this->getService(ErrorAndDiffResultFactory::class);
     }
 
     public function test(): void

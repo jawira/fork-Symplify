@@ -7,7 +7,7 @@ namespace Symplify\ChangelogLinker\Tests\Git;
 use Iterator;
 use Symplify\ChangelogLinker\Git\GitCommitDateTagResolver;
 use Symplify\ChangelogLinker\HttpKernel\ChangelogLinkerKernel;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 
 final class GitCommitDateTagResolverTest extends AbstractKernelTestCase
 {
@@ -19,7 +19,7 @@ final class GitCommitDateTagResolverTest extends AbstractKernelTestCase
     protected function setUp(): void
     {
         $this->bootKernel(ChangelogLinkerKernel::class);
-        $this->gitCommitDateTagResolver = self::$container->get(GitCommitDateTagResolver::class);
+        $this->gitCommitDateTagResolver = $this->getService(GitCommitDateTagResolver::class);
 
         $this->markTestSkipped('Random false positives on Github Actions');
     }
@@ -34,7 +34,7 @@ final class GitCommitDateTagResolverTest extends AbstractKernelTestCase
 
     public function provideData(): Iterator
     {
-        // different commit hashes after split
+        // different commit hashes after monorepo
         yield ['ef5e708', 'v4.1.1'];
         yield ['940ec99', 'v3.2.26'];
         yield ['too-new', 'Unreleased'];

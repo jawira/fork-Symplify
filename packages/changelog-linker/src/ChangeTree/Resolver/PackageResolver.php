@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Symplify\ChangelogLinker\ChangeTree\Resolver;
 
 use Nette\Utils\Strings;
-use Symplify\ChangelogLinker\Configuration\Package;
 use Symplify\ChangelogLinker\ValueObject\Option;
+use Symplify\ChangelogLinker\ValueObject\PackageName;
 use Symplify\PackageBuilder\Parameter\ParameterProvider;
 
 /**
@@ -16,13 +16,13 @@ final class PackageResolver
 {
     /**
      * @var string
+     * @see https://regex101.com/r/3oKiXw/1
      *
      * It assumes that there is at least one space after the package name.
      *
      * It covers:
      * - "[package-name] "Message => package-name
      * - "[aliased-package-name] "Message => aliased-package-name
-     * - "[Aliased\PackageName] "Message => Aliased\PackageName
      * - "[Aliased\PackageName] "Message => Aliased\PackageName
      */
     public const PACKAGE_NAME_REGEX = '#\[(?<package>[-\w\\\\]+)\]( ){1,}#';
@@ -44,7 +44,7 @@ final class PackageResolver
     {
         $match = Strings::match($message, self::PACKAGE_NAME_REGEX);
         if (! isset($match['package'])) {
-            return Package::UNKNOWN;
+            return PackageName::UNKNOWN;
         }
 
         return $this->packageAliases[$match['package']] ?? $match['package'];

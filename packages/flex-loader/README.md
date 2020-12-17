@@ -15,10 +15,6 @@ composer require symplify/flex-loader
 ### Traditional Kernel (Before)
 
 ```php
-<?php
-
-declare(strict_types=1);
-
 namespace App;
 
 use Iterator;
@@ -76,10 +72,6 @@ final class MyProjectKernel extends Kernel
 ### With Flex Loader (After)
 
 ```php
-<?php
-
-declare(strict_types=1);
-
 namespace App;
 
 use Iterator;
@@ -122,3 +114,13 @@ final class MyProjectKernel extends Kernel
     }
 }
 ```
+
+<br>
+
+## Report Issues
+
+In case you are experiencing a bug or want to request a new feature head over to the [Symplify monorepo issue tracker](https://github.com/symplify/symplify/issues)
+
+## Contribute
+
+The sources of this package are contained in the Symplify monorepo. We welcome contributions for this package on [symplify/symplify](https://github.com/symplify/symplify).

@@ -9,18 +9,14 @@ final class ArrayStringAndFnMatcher
     /**
      * @param string[] $matchingValues
      */
-    public function isMatch(string $currenctValue, array $matchingValues): bool
+    public function isMatchWithIsA(string $currentValue, array $matchingValues): bool
     {
+        if ($this->isMatch($currentValue, $matchingValues)) {
+            return true;
+        }
+
         foreach ($matchingValues as $matchingValue) {
-            if ($currenctValue === $matchingValue) {
-                return true;
-            }
-
-            if (fnmatch($matchingValue, $currenctValue)) {
-                return true;
-            }
-
-            if (fnmatch($matchingValue, $currenctValue, FNM_NOESCAPE)) {
+            if (is_a($currentValue, $matchingValue, true)) {
                 return true;
             }
         }
@@ -31,14 +27,18 @@ final class ArrayStringAndFnMatcher
     /**
      * @param string[] $matchingValues
      */
-    public function isMatchOrSubType(string $currenctValue, array $matchingValues): bool
+    public function isMatch(string $currentValue, array $matchingValues): bool
     {
-        if ($this->isMatch($currenctValue, $matchingValues)) {
-            return true;
-        }
-
         foreach ($matchingValues as $matchingValue) {
-            if (is_a($currenctValue, $matchingValue, true)) {
+            if ($currentValue === $matchingValue) {
+                return true;
+            }
+
+            if (fnmatch($matchingValue, $currentValue)) {
+                return true;
+            }
+
+            if (fnmatch($matchingValue, $currentValue, FNM_NOESCAPE)) {
                 return true;
             }
         }

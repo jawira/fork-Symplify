@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Symplify\Autodiscovery\Tests\Doctrine;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ORM\EntityManager;
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Symplify\Autodiscovery\Tests\Source\HttpKernel\AudiscoveryTestingKernel;
 use Symplify\Autodiscovery\Tests\Source\KernelProjectDir\Entity\Product;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 
 /**
  * @covers \Symplify\Autodiscovery\Doctrine\DoctrineEntityMappingAutodiscoverer

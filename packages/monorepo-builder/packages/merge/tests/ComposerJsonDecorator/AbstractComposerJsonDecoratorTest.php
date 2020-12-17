@@ -7,7 +7,7 @@ namespace Symplify\MonorepoBuilder\Merge\Tests\ComposerJsonDecorator;
 use Symplify\ComposerJsonManipulator\ComposerJsonFactory;
 use Symplify\ComposerJsonManipulator\ValueObject\ComposerJson;
 use Symplify\MonorepoBuilder\HttpKernel\MonorepoBuilderKernel;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 use Symplify\SmartFileSystem\SmartFileInfo;
 
 abstract class AbstractComposerJsonDecoratorTest extends AbstractKernelTestCase
@@ -21,7 +21,7 @@ abstract class AbstractComposerJsonDecoratorTest extends AbstractKernelTestCase
     {
         $this->bootKernel(MonorepoBuilderKernel::class);
 
-        $this->composerJsonFactory = self::$container->get(ComposerJsonFactory::class);
+        $this->composerJsonFactory = $this->getService(ComposerJsonFactory::class);
     }
 
     /**
@@ -63,5 +63,6 @@ abstract class AbstractComposerJsonDecoratorTest extends AbstractKernelTestCase
         $this->assertSame($firstComposerJson->getName(), $secondComposerJson->getName());
         $this->assertSame($firstComposerJson->getLicense(), $secondComposerJson->getLicense());
         $this->assertSame($firstComposerJson->getDescription(), $secondComposerJson->getDescription());
+        $this->assertSame($firstComposerJson->getAuthors(), $secondComposerJson->getAuthors());
     }
 }

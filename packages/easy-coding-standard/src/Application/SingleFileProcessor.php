@@ -7,7 +7,7 @@ namespace Symplify\EasyCodingStandard\Application;
 use ParseError;
 use Symplify\EasyCodingStandard\ChangedFilesDetector\ChangedFilesDetector;
 use Symplify\EasyCodingStandard\Error\ErrorAndDiffCollector;
-use Symplify\EasyCodingStandard\Skipper;
+use Symplify\Skipper\Skipper\Skipper;
 use Symplify\SmartFileSystem\SmartFileInfo;
 
 final class SingleFileProcessor
@@ -46,14 +46,15 @@ final class SingleFileProcessor
 
     public function processFileInfo(SmartFileInfo $smartFileInfo): void
     {
+        if ($this->skipper->shouldSkipFileInfo($smartFileInfo)) {
+            return;
+        }
+
         try {
             $this->changedFilesDetector->addFileInfo($smartFileInfo);
-            foreach ($this->fileProcessorCollector->getFileProcessors() as $fileProcessor) {
+            $fileProcessors = $this->fileProcessorCollector->getFileProcessors();
+            foreach ($fileProcessors as $fileProcessor) {
                 if ($fileProcessor->getCheckers() === []) {
-                    continue;
-                }
-
-                if ($this->skipper->shouldSkipFileInfo($smartFileInfo)) {
                     continue;
                 }
 
@@ -61,11 +62,10 @@ final class SingleFileProcessor
             }
         } catch (ParseError $parseError) {
             $this->changedFilesDetector->invalidateFileInfo($smartFileInfo);
-            $this->errorAndDiffCollector->addErrorMessage(
+            $this->errorAndDiffCollector->addSystemErrorMessage(
                 $smartFileInfo,
                 $parseError->getLine(),
-                $parseError->getMessage(),
-                ParseError::class
+                $parseError->getMessage()
             );
         }
     }

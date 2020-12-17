@@ -1,0 +1,11 @@
+services:
+    - Symplify\PackageBuilder\Matcher\ArrayStringAndFnMatcher
+    - Symplify\PHPStanRules\Naming\SimpleNameResolver
+
+    -
+        class: Symplify\PHPStanRules\Rules\ExclusiveDependencyRule
+        tags: [phpstan.rules.rule]
+        arguments:
+            allowedExclusiveDependencyInTypes:
+                Doctrine\ORM\EntityManager:
+                    - *Repository

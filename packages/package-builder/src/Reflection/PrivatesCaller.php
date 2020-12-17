@@ -19,12 +19,13 @@ final class PrivatesCaller
     public function callPrivateMethod($object, string $methodName, ...$arguments)
     {
         if (is_string($object)) {
-            $object = (new ReflectionClass($object))->newInstanceWithoutConstructor();
+            $reflectionClass = new ReflectionClass($object);
+            $object = $reflectionClass->newInstanceWithoutConstructor();
         }
 
         $methodReflection = $this->createAccessibleMethodReflection($object, $methodName);
 
-        return $methodReflection->invoke($object, ...$arguments);
+        return $methodReflection->invokeArgs($object, $arguments);
     }
 
     /**
@@ -33,7 +34,8 @@ final class PrivatesCaller
     public function callPrivateMethodWithReference($object, string $methodName, $argument)
     {
         if (is_string($object)) {
-            $object = (new ReflectionClass($object))->newInstanceWithoutConstructor();
+            $reflectionClass = new ReflectionClass($object);
+            $object = $reflectionClass->newInstanceWithoutConstructor();
         }
 
         $methodReflection = $this->createAccessibleMethodReflection($object, $methodName);

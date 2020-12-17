@@ -7,7 +7,7 @@ namespace Symplify\ChangelogLinker\Tests\Regex;
 use Iterator;
 use Nette\Utils\Strings;
 use PHPUnit\Framework\TestCase;
-use Symplify\ChangelogLinker\Regex\RegexPattern;
+use Symplify\ChangelogLinker\ValueObject\RegexPattern;
 
 final class RegexPatternTest extends TestCase
 {
@@ -23,7 +23,8 @@ final class RegexPatternTest extends TestCase
     ): void {
         $matches = [];
 
-        foreach (Strings::matchAll($content, $regexPattern) as $match) {
+        $matchesRegexContents = Strings::matchAll($content, $regexPattern);
+        foreach ($matchesRegexContents as $match) {
             $matches[] = $match[$matchName];
         }
 
@@ -33,6 +34,6 @@ final class RegexPatternTest extends TestCase
     public function provideDataForLinkReference(): Iterator
     {
         yield ['[@Tomas]: http://', RegexPattern::LINK_REFERENCE_REGEX, 'reference', ['@Tomas']];
-        yield ['Thanks to @Tomas', '#' . RegexPattern::USER . '#', 'reference', ['@Tomas']];
+        yield ['Thanks to @Tomas', '#' . RegexPattern::USER_REGEX . '#', 'reference', ['@Tomas']];
     }
 }

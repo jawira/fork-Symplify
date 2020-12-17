@@ -16,8 +16,8 @@ use Symplify\CodingStandard\Sniffs\Debug\CommentedOutCodeSniff;
 use Symplify\EasyCodingStandard\Application\AppliedCheckersCollector;
 use Symplify\EasyCodingStandard\Console\Style\EasyCodingStandardStyle;
 use Symplify\EasyCodingStandard\Error\ErrorAndDiffCollector;
-use Symplify\EasyCodingStandard\Skipper;
 use Symplify\EasyCodingStandard\SniffRunner\Exception\File\NotImplementedException;
+use Symplify\Skipper\Skipper\Skipper;
 use Symplify\SmartFileSystem\SmartFileInfo;
 
 /**
@@ -132,7 +132,7 @@ final class File extends BaseFile
             }
 
             foreach ($this->tokenListeners[$token['code']] as $sniff) {
-                if ($this->skipper->shouldSkipCheckerAndFile($sniff, $this->fileInfo)) {
+                if ($this->skipper->shouldSkipElementAndFileInfo($sniff, $this->fileInfo)) {
                     continue;
                 }
 
@@ -288,13 +288,13 @@ final class File extends BaseFile
     {
         $fullyQualifiedCode = $this->resolveFullyQualifiedCode($code);
 
-        if ($this->skipper->shouldSkipCodeAndFile($fullyQualifiedCode, $this->fileInfo)) {
+        if ($this->skipper->shouldSkipElementAndFileInfo($fullyQualifiedCode, $this->fileInfo)) {
             return true;
         }
 
         $message = count($data) > 0 ? vsprintf($error, $data) : $error;
 
-        return $this->skipper->shouldSkipMessageAndFile($message, $this->fileInfo);
+        return $this->skipper->shouldSkipElementAndFileInfo($message, $this->fileInfo);
     }
 
     private function isSniffClassWarningAllowed(string $sniffClass): bool

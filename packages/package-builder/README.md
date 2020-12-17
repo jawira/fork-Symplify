@@ -29,10 +29,6 @@ services:
 Then require in `__construct()` where needed:
 
 ```php
-<?php
-
-declare(strict_types=1);
-
 namespace App\Configuration;
 
 use Symplify\PackageBuilder\Parameter\ParameterProvider;
@@ -62,103 +58,9 @@ final class ProjectConfiguration
 ### Get Vendor Directory from Anywhere
 
 ```php
-<?php
-
-declare(strict_types=1);
-
 $vendorDirProvider = new Symplify\PackageBuilder\Composer\VendorDirProvider();
 // returns path to vendor directory
 $vendorDirProvider->provide();
-```
-
-<br>
-
-### Merge Parameters in `.yaml` Files Instead of Override?
-
-In Symfony [the last parameter wins by default](https://github.com/symfony/symfony/issues/26713)*, which is bad if you want to decouple your parameters.
-
-```yaml
-# first.yaml
-parameters:
-    another_key:
-       - skip_this
-```
-
-```yaml
-# second.yaml
-imports:
-    - { resource: 'first.yaml' }
-
-parameters:
-    another_key:
-       - skip_that_too
-```
-
-The result will change with `Symplify\PackageBuilder\Yaml\FileLoader\ParameterMergingYamlFileLoader`:
-
-```diff
- parameters:
-     another_key:
-+       - skip_this
-        - skip_that_too
-```
-
-How to use it?
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App;
-
-use Symfony\Component\Config\Loader\DelegatingLoader;
-use Symfony\Component\Config\Loader\LoaderResolver;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\Loader\GlobFileLoader;
-use Symfony\Component\HttpKernel\Config\FileLocator;
-use Symfony\Component\HttpKernel\Kernel;
-use Symplify\PackageBuilder\Yaml\FileLoader\ParameterMergingYamlFileLoader;
-
-final class AppKernel extends Kernel
-{
-    /**
-     * @param ContainerInterface|ContainerBuilder $container
-     */
-    protected function getContainerLoader(ContainerInterface $container): DelegatingLoader
-    {
-        $kernelFileLocator = new FileLocator($this);
-
-        $loaderResolver = new LoaderResolver([
-            new GlobFileLoader($container, $kernelFileLocator),
-            new ParameterMergingYamlFileLoader($container, $kernelFileLocator),
-        ]);
-
-        return new DelegatingLoader($loaderResolver);
-    }
-}
-```
-
-In case you need to do more work in YamlFileLoader, just extend the abstract parent `Symplify\PackageBuilder\Yaml\FileLoader\AbstractParameterMergingYamlFileLoader` and add your own logic.
-
-<br>
-
-### Do you Need to Merge YAML files Outside Kernel?
-
-Instead of creating all the classes use this helper class:
-
-```php
-<?php
-
-declare(strict_types=1);
-
-$parameterMergingYamlLoader = new Symplify\PackageBuilder\Yaml\ParameterMergingYamlLoader();
-
-$parameterBag = $parameterMergingYamlLoader->loadParameterBagFromFile(__DIR__ . '/config.yaml');
-
-var_dump($parameterBag);
-// instance of "Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface"
 ```
 
 <br>
@@ -174,10 +76,6 @@ var_dump($parameterBag);
 Do you want to allow users to register services without worrying about autowiring? After all, they might forget it and that would break their code. Set types to always autowire:
 
 ```php
-<?php
-
-declare(strict_types=1);
-
 namespace App;
 
 use PhpCsFixer\Fixer\FixerInterface;
@@ -199,3 +97,13 @@ This will make sure, that `PhpCsFixer\Fixer\FixerInterface` instances are always
 <br>
 
 That's all :)
+
+<br>
+
+## Report Issues
+
+In case you are experiencing a bug or want to request a new feature head over to the [Symplify monorepo issue tracker](https://github.com/symplify/symplify/issues)
+
+## Contribute
+
+The sources of this package are contained in the Symplify monorepo. We welcome contributions for this package on [symplify/symplify](https://github.com/symplify/symplify).

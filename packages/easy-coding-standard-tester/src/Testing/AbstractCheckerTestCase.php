@@ -6,23 +6,35 @@ namespace Symplify\EasyCodingStandardTester\Testing;
 
 use Nette\Utils\Json;
 use Nette\Utils\Strings;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Yaml\Yaml;
 use Symplify\EasyCodingStandard\Configuration\Exception\NoCheckersLoadedException;
-use Symplify\EasyCodingStandard\Console\Style\EasyCodingStandardStyle;
 use Symplify\EasyCodingStandard\Error\ErrorAndDiffCollector;
 use Symplify\EasyCodingStandard\Error\ErrorAndDiffResultFactory;
 use Symplify\EasyCodingStandard\FixerRunner\Application\FixerFileProcessor;
 use Symplify\EasyCodingStandard\HttpKernel\EasyCodingStandardKernel;
 use Symplify\EasyCodingStandard\SniffRunner\Application\SniffFileProcessor;
 use Symplify\EasyTesting\StaticFixtureSplitter;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
+use Symplify\PhpConfigPrinter\HttpKernel\PhpConfigPrinterKernel;
+use Symplify\PhpConfigPrinter\YamlToPhpConverter;
 use Symplify\SmartFileSystem\FileSystemGuard;
 use Symplify\SmartFileSystem\SmartFileInfo;
 use Symplify\SmartFileSystem\SmartFileSystem;
 
 abstract class AbstractCheckerTestCase extends AbstractKernelTestCase
 {
+    /**
+     * @var string[]
+     */
+    private const POSSIBLE_CODE_SNIFFER_AUTOLOAD_PATHS = [
+        __DIR__ . '/../../../../../vendor/squizlabs/php_codesniffer/autoload.php',
+        __DIR__ . '/../../../../vendor/squizlabs/php_codesniffer/autoload.php',
+    ];
+
+    /**
+     * @var YamlToPhpConverter|null
+     */
+    private static $yamlToPhpConverter;
+
     /**
      * @var FixerFileProcessor
      */
@@ -45,21 +57,16 @@ abstract class AbstractCheckerTestCase extends AbstractKernelTestCase
 
     protected function setUp(): void
     {
-        $configs = $this->getValidatedConfigs();
-
         // autoload php code sniffer before Kernel boot
         $this->autoloadCodeSniffer();
 
+        $configs = $this->getValidatedConfigs();
         $this->bootKernelWithConfigs(EasyCodingStandardKernel::class, $configs);
 
-        $this->fixerFileProcessor = self::$container->get(FixerFileProcessor::class);
-        $this->sniffFileProcessor = self::$container->get(SniffFileProcessor::class);
-        $this->errorAndDiffCollector = self::$container->get(ErrorAndDiffCollector::class);
-        $this->errorAndDiffResultFactory = self::$container->get(ErrorAndDiffResultFactory::class);
-
-        // silent output
-        $easyCodingStandardStyle = self::$container->get(EasyCodingStandardStyle::class);
-        $easyCodingStandardStyle->setVerbosity(OutputInterface::VERBOSITY_QUIET);
+        $this->fixerFileProcessor = $this->getService(FixerFileProcessor::class);
+        $this->sniffFileProcessor = $this->getService(SniffFileProcessor::class);
+        $this->errorAndDiffCollector = $this->getService(ErrorAndDiffCollector::class);
+        $this->errorAndDiffResultFactory = $this->getService(ErrorAndDiffResultFactory::class);
 
         // reset error count from previous possibly container cached run
         $this->errorAndDiffCollector->resetCounters();
@@ -91,8 +98,7 @@ abstract class AbstractCheckerTestCase extends AbstractKernelTestCase
         // use local if not overloaded
         if ($this->getCheckerClass() !== '') {
             $hash = $this->createConfigHash();
-
-            $configFileTempPath = sprintf(sys_get_temp_dir() . '/ecs_temp_tests/config_%s.yaml', $hash);
+            $configFileTempPath = sprintf(sys_get_temp_dir() . '/ecs_temp_tests/config_%s.php', $hash);
 
             // cache for 2nd run, similar to original config one
             if (file_exists($configFileTempPath)) {
@@ -110,8 +116,11 @@ abstract class AbstractCheckerTestCase extends AbstractKernelTestCase
                 ],
             ];
 
-            $yamlContent = Yaml::dump($servicesConfiguration, Yaml::DUMP_OBJECT_AS_MAP);
-            (new SmartFileSystem())->dumpFile($configFileTempPath, $yamlContent);
+            $yamlToPhpConverter = $this->getYamlToPhpConverter();
+            $phpConfigContent = $yamlToPhpConverter->convertYamlArray($servicesConfiguration);
+
+            $smartFileSystem = new SmartFileSystem();
+            $smartFileSystem->dumpFile($configFileTempPath, $phpConfigContent);
 
             return $configFileTempPath;
         }
@@ -198,17 +207,12 @@ abstract class AbstractCheckerTestCase extends AbstractKernelTestCase
 
     private function autoloadCodeSniffer(): void
     {
-        $possibleAutoloadPaths = [
-            __DIR__ . '/../../../../../vendor/squizlabs/php_codesniffer/autoload.php',
-            __DIR__ . '/../../../../vendor/squizlabs/php_codesniffer/autoload.php',
-        ];
-
-        foreach ($possibleAutoloadPaths as $possibleAutoloadPath) {
-            if (! file_exists($possibleAutoloadPath)) {
+        foreach (self::POSSIBLE_CODE_SNIFFER_AUTOLOAD_PATHS as $possibleCodeSnifferAutoloadPath) {
+            if (! file_exists($possibleCodeSnifferAutoloadPath)) {
                 continue;
             }
 
-            require_once $possibleAutoloadPath;
+            require_once $possibleCodeSnifferAutoloadPath;
             return;
         }
     }
@@ -252,8 +256,21 @@ abstract class AbstractCheckerTestCase extends AbstractKernelTestCase
     private function getValidatedConfigs(): array
     {
         $config = $this->provideConfig();
-        (new FileSystemGuard())->ensureFileExists($config, static::class);
+        $fileSystemGuard = new FileSystemGuard();
+        $fileSystemGuard->ensureFileExists($config, static::class);
 
         return [$config];
+    }
+
+    private function getYamlToPhpConverter(): YamlToPhpConverter
+    {
+        if (self::$yamlToPhpConverter !== null) {
+            return self::$yamlToPhpConverter;
+        }
+
+        $this->bootKernel(PhpConfigPrinterKernel::class);
+        self::$yamlToPhpConverter = $this->getService(YamlToPhpConverter::class);
+
+        return self::$yamlToPhpConverter;
     }
 }

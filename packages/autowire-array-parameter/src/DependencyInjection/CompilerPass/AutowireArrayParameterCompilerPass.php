@@ -60,7 +60,8 @@ final class AutowireArrayParameterCompilerPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $containerBuilder): void
     {
-        foreach ($containerBuilder->getDefinitions() as $definition) {
+        $definitions = $containerBuilder->getDefinitions();
+        foreach ($definitions as $definition) {
             if ($this->shouldSkipDefinition($containerBuilder, $definition)) {
                 continue;
             }
@@ -85,11 +86,12 @@ final class AutowireArrayParameterCompilerPass implements CompilerPassInterface
         }
 
         // here class name can be "%parameter.class%"
-        $resolvedClassName = $containerBuilder->getParameterBag()
-            ->resolveValue($definition->getClass());
+        $parameterBag = $containerBuilder->getParameterBag();
+        $resolvedClassName = $parameterBag->resolveValue($definition->getClass());
 
         // skip 3rd party classes, they're autowired by own config
-        if (Strings::match($resolvedClassName, '#^(' . implode('|', self::EXCLUDED_NAMESPACES) . ')\\\\#')) {
+        $excludedNamespacePattern = '#^(' . implode('|', self::EXCLUDED_NAMESPACES) . ')\\\\#';
+        if ((bool) Strings::match($resolvedClassName, $excludedNamespacePattern)) {
             return true;
         }
 
@@ -120,7 +122,8 @@ final class AutowireArrayParameterCompilerPass implements CompilerPassInterface
         ReflectionMethod $reflectionMethod,
         Definition $definition
     ): void {
-        foreach ($reflectionMethod->getParameters() as $reflectionParameter) {
+        $reflectionParameters = $reflectionMethod->getParameters();
+        foreach ($reflectionParameters as $reflectionParameter) {
             if ($this->shouldSkipParameter($reflectionMethod, $definition, $reflectionParameter)) {
                 continue;
             }
@@ -143,7 +146,7 @@ final class AutowireArrayParameterCompilerPass implements CompilerPassInterface
         Definition $definition,
         ReflectionParameter $reflectionParameter
     ): bool {
-        if (! $reflectionParameter->isArray()) {
+        if (! $this->isArrayType($reflectionParameter)) {
             return true;
         }
 
@@ -215,10 +218,21 @@ final class AutowireArrayParameterCompilerPass implements CompilerPassInterface
     private function createReferencesFromDefinitions(array $definitions): array
     {
         $references = [];
-        foreach (array_keys($definitions) as $definitionOfTypeName) {
+        $definitionOfTypeNames = array_keys($definitions);
+        foreach ($definitionOfTypeNames as $definitionOfTypeName) {
             $references[] = new Reference($definitionOfTypeName);
         }
 
         return $references;
+    }
+
+    private function isArrayType(ReflectionParameter $reflectionParameter): bool
+    {
+        if ($reflectionParameter->getType() === null) {
+            return false;
+        }
+
+        $reflectionParameterType = $reflectionParameter->getType();
+        return $reflectionParameterType->getName() === 'array';
     }
 }

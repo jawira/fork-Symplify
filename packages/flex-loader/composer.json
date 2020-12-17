@@ -3,15 +3,15 @@
     "description": "Reduce Kernel Flex boiler code and use extra features",
     "license": "MIT",
     "require": {
-        "php": ">=7.2",
+        "php": ">=7.3",
         "nette/utils": "^3.0",
-        "symfony/dependency-injection": "^4.4|^5.1",
+        "symfony/dependency-injection": "^5.1",
         "symfony/routing": "^4.4|^5.1"
     },
     "require-dev": {
         "symfony/framework-bundle": "^4.4|^5.1",
-        "symplify/package-builder": "^8.4",
-        "phpunit/phpunit": "^8.5|^9.0"
+        "symplify/package-builder": "^9.1",
+        "phpunit/phpunit": "^9.5"
     },
     "autoload": {
         "psr-4": {
@@ -25,7 +25,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "8.4-dev"
+            "dev-master": "9.1-dev"
         }
     },
     "minimum-stability": "dev",

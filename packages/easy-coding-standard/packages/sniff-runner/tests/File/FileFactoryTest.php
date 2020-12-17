@@ -9,7 +9,7 @@ use PHP_CodeSniffer\Fixer;
 use Symplify\EasyCodingStandard\HttpKernel\EasyCodingStandardKernel;
 use Symplify\EasyCodingStandard\SniffRunner\File\FileFactory;
 use Symplify\EasyCodingStandard\SniffRunner\ValueObject\File;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 use Symplify\SmartFileSystem\SmartFileInfo;
 
 final class FileFactoryTest extends AbstractKernelTestCase
@@ -22,7 +22,7 @@ final class FileFactoryTest extends AbstractKernelTestCase
     protected function setUp(): void
     {
         $this->bootKernel(EasyCodingStandardKernel::class);
-        $this->fileFactory = self::$container->get(FileFactory::class);
+        $this->fileFactory = $this->getService(FileFactory::class);
     }
 
     public function test(): void

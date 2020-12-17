@@ -13,6 +13,7 @@ final class YamlServiceProcessor
 {
     /**
      * @var string
+     * @see https://regex101.com/r/nR1pcK/1
      */
     private const VENDOR_DIRECTORY_REGEX = '#/vendor/#';
 
@@ -100,7 +101,8 @@ final class YamlServiceProcessor
         // is in vendor?
         if (class_exists($class)) {
             $reflectionClass = new ReflectionClass($class);
-            if (Strings::match($reflectionClass->getFileName(), self::VENDOR_DIRECTORY_REGEX)) {
+            $vendorMatches = Strings::match((string) $reflectionClass->getFileName(), self::VENDOR_DIRECTORY_REGEX);
+            if ($vendorMatches) {
                 return true;
             }
         }

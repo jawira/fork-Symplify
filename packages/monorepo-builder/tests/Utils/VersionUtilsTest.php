@@ -7,7 +7,7 @@ namespace Symplify\MonorepoBuilder\Tests\Utils;
 use Iterator;
 use Symplify\MonorepoBuilder\HttpKernel\MonorepoBuilderKernel;
 use Symplify\MonorepoBuilder\Utils\VersionUtils;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 
 final class VersionUtilsTest extends AbstractKernelTestCase
 {
@@ -20,7 +20,7 @@ final class VersionUtilsTest extends AbstractKernelTestCase
     {
         $this->bootKernel(MonorepoBuilderKernel::class);
 
-        $this->versionUtils = self::$container->get(VersionUtils::class);
+        $this->versionUtils = $this->getService(VersionUtils::class);
     }
 
     /**

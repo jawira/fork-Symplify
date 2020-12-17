@@ -19,6 +19,7 @@ final class ChangeFactory
 {
     /**
      * @var string
+     * @see https://regex101.com/r/QPRx0q/1
      */
     private const ASTERISK_REGEX = '#(\*)#';
 
@@ -92,6 +93,6 @@ final class ChangeFactory
         }
 
         // can be aliased (not the $package variable), so we need to check any naming
-        return Strings::replace($message, PackageResolver::PACKAGE_NAME_REGEX);
+        return Strings::replace($message, PackageResolver::PACKAGE_NAME_REGEX, '');
     }
 }

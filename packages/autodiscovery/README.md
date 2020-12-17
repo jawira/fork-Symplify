@@ -74,10 +74,6 @@ How can we avoid that?
 ```
 
 ```php
-<?php
-
-declare(strict_types=1);
-
 namespace App;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -134,10 +130,6 @@ twig:
 ```
 
 ```php
-<?php
-
-declare(strict_types=1);
-
 namespace App;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -185,10 +177,6 @@ framework:
 ```
 
 ```php
-<?php
-
-declare(strict_types=1);
-
 namespace App;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -242,10 +230,6 @@ social_annotations:
 ```
 
 ```php
-<?php
-
-declare(strict_types=1);
-
 namespace App;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -265,116 +249,12 @@ final class MyProjectKernel extends Kernel
 
 This works very well with [local packages](https://www.tomasvotruba.com/blog/2017/12/25/composer-local-packages-for-dummies/) or [monorepo architecture](https://www.tomasvotruba.com/clusters/#monorepo-from-zero-to-hero).
 
-## YAML Convertor
-
-```bash
-vendor/bin/autodiscovery convert-yaml /src # directory
-vendor/bin/autodiscovery convert-yaml config/config.yaml # single file
-```
-
-It will convert service definitions in `(config|services).(yml|yaml)` files, to new [Symfony 3.3 DI features described here](https://www.tomasvotruba.com/blog/2017/05/07/how-to-refactor-to-new-dependency-injection-features-in-symfony-3-3/).
-
-### Configuration
-
-You can configure the namespace depth:
-
-```bash
-vendor/bin/autodiscovery convert-yaml config/config.yaml --nesting-level 3 # default: 2
-```
-
-Will produce ↓
-
-```yaml
-services:
-     App\Product\Controller\:
-         resource: '../src/Product/Controller'
-     App\Product\Repository\:
-         resource: '../src/Product/Repository'
-```
-
-```bash
-vendor/bin/autodiscovery convert-yaml config/config.yaml --nesting-level 1
-```
-
-↓
-
-```yaml
-services:
-     App\:
-         resource: '../src'
-```
-
-Also, filter by only specific name in services:
-
-```bash
-vendor/bin/autodiscovery convert-yaml config/config.yaml --filter Controller
-```
-
-This will only dump to resource services, that contains "Controller" string.
-
 <br>
 
-In example code, from this:
+## Report Issues
 
-```yaml
-services:
-    some_service:
-        class: App\SomeService
-        autowire: true
+In case you are experiencing a bug or want to request a new feature head over to the [Symplify monorepo issue tracker](https://github.com/symplify/symplify/issues)
 
-    some_controller:
-        class: App\Controller\SomeController
-        autowire: true
+## Contribute
 
-    first_repository:
-        class: App\Repository\FirstRepository
-        autowire: true
-        calls:
-            - ["setEntityManager", ["@entity_manager"]]
-    second_repository:
-        class: App\Repository\SecondRepository
-        autowire: true
-        calls:
-            - ["setEntityManager", ["@entity_manager"]]
-
-    first_command:
-        class: App\Command\FirstCommand
-        autowire: true
-        tags:
-            - { name: console.command }
-    second_command:
-        class: App\Command\SecondCommand
-        autowire: true
-        tags:
-            - { name: console.command }
-
-    first_subscriber:
-        class: App\EventSubscriber\FirstSubscriber
-        autowire: true
-        tags:
-            - { name: kernel.event_subscriber }
-    second_subscriber:
-        class: App\EventSubscriber\SecondSubscriber
-        autowire: true
-        tags:
-            - { name: kernel.event_subscriber }
-```
-
-To this:
-
-```yaml
-services:
-    _defaults:
-        autowire: true
-        autoconfigure: true
-
-    App\Repository\FirstRepository:
-        calls:
-            - ["setEntityManager", ["@entity_manager"]]
-    App\Repository\SecondRepository:
-        calls:
-            - ["setEntityManager", ["@entity_manager"]]
-
-    App\:
-        resource: '../../../src'
-```
+The sources of this package are contained in the Symplify monorepo. We welcome contributions for this package on [symplify/symplify](https://github.com/symplify/symplify).

@@ -36,12 +36,7 @@ Head over to the ["Easy Coding Standard Prefixed" repository](https://github.com
 - ...or [Fixers](https://github.com/FriendsOfPHP/PHP-CS-Fixer) you'd love to use
 
 ```php
-<?php
-
 // ecs.php
-
-declare(strict_types=1);
-
 use PhpCsFixer\Fixer\ArrayNotation\ArraySyntaxFixer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symplify\EasyCodingStandard\ValueObject\Option;
@@ -84,12 +79,6 @@ vendor/bin/ecs check src --config another-config.php
 Configuration can be extended with many options. Here is list of them with example values and little description what are they for:
 
 ```php
-<?php
-
-// ecs.php
-
-declare(strict_types=1);
-
 use PhpCsFixer\Fixer\ArrayNotation\ArraySyntaxFixer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symplify\EasyCodingStandard\ValueObject\Option;
@@ -100,35 +89,38 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // alternative to CLI arguments, easier to maintain and extend
     $parameters->set(Option::PATHS, [__DIR__ . '/src', __DIR__ . '/tests']);
 
-    // exlude paths with really nasty code
-    $parameters->set(Option::EXCLUDE_PATHS, [__DIR__ . '/packages/*/src/Legacy']);
-
     // run single rule only on specific path
     $parameters->set(Option::ONLY, [
         ArraySyntaxFixer::class => [__DIR__ . '/src/NewCode'],
     ]);
 
     $parameters->set(Option::SKIP, [
+        // skip paths with legacy code
+        __DIR__ . '/packages/*/src/Legacy',
+
         ArraySyntaxFixer::class => [
-            # path to file (you can copy this from error report)
+            // path to file (you can copy this from error report)
             __DIR__ . '/packages/EasyCodingStandard/packages/SniffRunner/src/File/File.php',
 
-            # or multiple files by path to match against "fnmatch()"
+            // or multiple files by path to match against "fnmatch()"
             __DIR__ . '/packages/*/src/Command',
         ],
-        // skip rule compeltely
-        ArraySyntaxFixer::class => null,
+
+        // skip rule completely
+        ArraySyntaxFixer::class,
+
         // just single one part of the rule?
-        ArraySyntaxFixer::class . '.SomeSingleOption' => null,
+        ArraySyntaxFixer::class . '.SomeSingleOption',
+
         // ignore specific error message
-        'Cognitive complexity for method "addAction" is 13 but has to be less than or equal to 8.' => null,
+        'Cognitive complexity for method "addAction" is 13 but has to be less than or equal to 8.',
     ]);
 
     // scan other file extendsions; [default: [php]]
     $parameters->set(Option::FILE_EXTENSIONS, ['php', 'phpt']);
 
     // configure cache paths & namespace - useful for Gitlab CI caching, where getcwd() produces always different path
-    // fdefault: sys_get_temp_dir() . '/_changed_files_detector_tests']
+    // [default: sys_get_temp_dir() . '/_changed_files_detector_tests']
     $parameters->set(Option::CACHE_DIRECTORY, '.ecs_cache');
 
     // [default: \Nette\Utils\Strings::webalize(getcwd())']
@@ -178,6 +170,16 @@ vendor/bin/ecs show --config ...
 vendor/bin/ecs check src --clear-cache
 ```
 
+### Run on Git Diff Changed Files Only
+
+Execution can be limited to changed files using the `process` option `--match-git-diff`:
+
+```bash
+vendor/bin/ecs check src --match-git-diff
+```
+
+This option will filter the files included by the configuration, creating an intersection with the files listed in `git diff`.
+
 ## Your IDE Integration
 
 ### PHPStorm
@@ -209,6 +211,12 @@ You can also create a keyboard shortcut in [Preferences > Keymap](https://www.je
 | ---- | --------- | ----------- |
 | [GrumPHP](https://github.com/phpro/grumphp) | [ECS Task](https://github.com/phpro/grumphp/blob/master/doc/tasks/ecs.md) | Provides a new task for GrumPHP which runs ECS |
 
-## Contributing
+<br>
 
-Send [issue](https://github.com/symplify/symplify/issues) or [pull-request](https://github.com/symplify/symplify/pulls) to main repository.
+## Report Issues
+
+In case you are experiencing a bug or want to request a new feature head over to the [Symplify monorepo issue tracker](https://github.com/symplify/symplify/issues)
+
+## Contribute
+
+The sources of this package are contained in the Symplify monorepo. We welcome contributions for this package on [symplify/symplify](https://github.com/symplify/symplify).

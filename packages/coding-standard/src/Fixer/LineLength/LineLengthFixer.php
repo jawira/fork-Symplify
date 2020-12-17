@@ -6,7 +6,6 @@ namespace Symplify\CodingStandard\Fixer\LineLength;
 
 use Nette\Utils\Strings;
 use PhpCsFixer\Fixer\ArrayNotation\TrimArraySpacesFixer;
-use PhpCsFixer\Fixer\ConfigurableFixerInterface;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
 use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\Tokenizer\CT;
@@ -17,13 +16,17 @@ use Symplify\CodingStandard\Fixer\AbstractSymplifyFixer;
 use Symplify\CodingStandard\TokenRunner\Analyzer\FixerAnalyzer\BlockFinder;
 use Symplify\CodingStandard\TokenRunner\Transformer\FixerTransformer\LineLengthTransformer;
 use Symplify\CodingStandard\TokenRunner\ValueObject\BlockInfo;
+use Symplify\RuleDocGenerator\Contract\ConfigurableRuleInterface;
+use Symplify\RuleDocGenerator\Contract\DocumentedRuleInterface;
+use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
+use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 use Throwable;
 
 /**
  * @see \Symplify\CodingStandard\Tests\Fixer\LineLength\LineLengthFixer\LineLengthFixerTest
  * @see \Symplify\CodingStandard\Tests\Fixer\LineLength\LineLengthFixer\ConfiguredLineLengthFixerTest
  */
-final class LineLengthFixer extends AbstractSymplifyFixer implements ConfigurableFixerInterface
+final class LineLengthFixer extends AbstractSymplifyFixer implements ConfigurableRuleInterface, DocumentedRuleInterface
 {
     /**
      * @api
@@ -42,6 +45,11 @@ final class LineLengthFixer extends AbstractSymplifyFixer implements Configurabl
      * @var string
      */
     public const INLINE_SHORT_LINES = 'inline_short_lines';
+
+    /**
+     * @var string
+     */
+    private const ERROR_MESSAGE = 'Array items, method parameters, method call arguments, new arguments should be on same/standalone line to fit line length.';
 
     /**
      * @var int
@@ -76,10 +84,7 @@ final class LineLengthFixer extends AbstractSymplifyFixer implements Configurabl
 
     public function getDefinition(): FixerDefinitionInterface
     {
-        return new FixerDefinition(
-            'Array items, method parameters, method call arguments, new arguments should be on same/standalone line to fit line length.',
-            []
-        );
+        return new FixerDefinition(self::ERROR_MESSAGE, []);
     }
 
     public function isCandidate(Tokens $tokens): bool
@@ -87,7 +92,7 @@ final class LineLengthFixer extends AbstractSymplifyFixer implements Configurabl
         return $tokens->isAnyTokenKindsFound([
             // "["
             T_ARRAY,
-            // "array"();
+            // "array"()
             CT::T_ARRAY_SQUARE_BRACE_OPEN,
             '(',
             ')',
@@ -112,14 +117,15 @@ final class LineLengthFixer extends AbstractSymplifyFixer implements Configurabl
                 continue;
             }
 
+            // opener
             if ($token->isGivenKind([T_FUNCTION, CT::T_USE_LAMBDA, T_NEW])) {
                 $this->processFunctionOrArray($tokens, $position);
                 continue;
             }
 
+            // closer
             if ($token->isGivenKind(CT::T_ARRAY_SQUARE_BRACE_CLOSE) || ($token->equals(')') && $token->isArray())) {
                 $this->processFunctionOrArray($tokens, $position);
-                continue;
             }
         }
     }
@@ -139,6 +145,41 @@ final class LineLengthFixer extends AbstractSymplifyFixer implements Configurabl
         $this->inlineShortLines = $configuration[self::INLINE_SHORT_LINES] ?? true;
     }
 
+    public function getRuleDefinition(): RuleDefinition
+    {
+        return new RuleDefinition(self::ERROR_MESSAGE, [
+            new ConfiguredCodeSample(
+                <<<'CODE_SAMPLE'
+function some($veryLong, $superLong, $oneMoreTime)
+{
+}
+
+function another(
+    $short,
+    $now
+) {
+}
+CODE_SAMPLE
+                ,
+                <<<'CODE_SAMPLE'
+function some(
+    $veryLong,
+    $superLong,
+    $oneMoreTime
+) {
+}
+
+function another($short, $now) {
+}
+CODE_SAMPLE
+                ,
+                [
+                    self::LINE_LENGTH => 40,
+                ]
+            ),
+        ]);
+    }
+
     private function processMethodCall(Tokens $tokens, int $position): void
     {
         $methodNamePosition = $this->matchNamePositionForEndOfFunctionCall($tokens, $position);
@@ -152,7 +193,8 @@ final class LineLengthFixer extends AbstractSymplifyFixer implements Configurabl
         }
 
         // has comments => dangerous to change: https://github.com/symplify/symplify/issues/973
-        if ($tokens->findGivenKind(T_COMMENT, $blockInfo->getStart(), $blockInfo->getEnd()) !== []) {
+        $comments = $tokens->findGivenKind(T_COMMENT, $blockInfo->getStart(), $blockInfo->getEnd());
+        if ($comments !== []) {
             return;
         }
 
@@ -238,9 +280,11 @@ final class LineLengthFixer extends AbstractSymplifyFixer implements Configurabl
         }
 
         // is array with indexed values "=>"
-        if ($tokens->findGivenKind(T_DOUBLE_ARROW, $blockInfo->getStart(), $blockInfo->getEnd()) !== []) {
+        $doubleArrowTokens = $tokens->findGivenKind(T_DOUBLE_ARROW, $blockInfo->getStart(), $blockInfo->getEnd());
+        if ($doubleArrowTokens !== []) {
             return true;
         }
+
         // has comments => dangerous to change: https://github.com/symplify/symplify/issues/973
         return (bool) $tokens->findGivenKind(T_COMMENT, $blockInfo->getStart(), $blockInfo->getEnd());
     }

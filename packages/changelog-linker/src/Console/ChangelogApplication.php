@@ -11,14 +11,12 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symplify\ChangelogLinker\Configuration\Option;
-use Symplify\PackageBuilder\Console\HelpfulApplicationTrait;
+use Symplify\ChangelogLinker\ValueObject\Option;
 use Symplify\PackageBuilder\Parameter\ParameterProvider;
+use Symplify\SymplifyKernel\Console\AbstractSymplifyConsoleApplication;
 
-final class ChangelogApplication extends Application
+final class ChangelogApplication extends AbstractSymplifyConsoleApplication
 {
-    use HelpfulApplicationTrait;
-
     /**
      * @var ParameterProvider
      */
@@ -30,9 +28,8 @@ final class ChangelogApplication extends Application
     public function __construct(ParameterProvider $parameterProvider, array $commands)
     {
         $this->parameterProvider = $parameterProvider;
-        $this->addCommands($commands);
 
-        parent::__construct();
+        parent::__construct($commands);
     }
 
     protected function doRunCommand(Command $command, InputInterface $input, OutputInterface $output): int
@@ -57,7 +54,9 @@ final class ChangelogApplication extends Application
         );
 
         // adds "--config" | "-c" option
-        $inputDefinition->addOption(new InputOption('config', 'c', InputOption::VALUE_REQUIRED, 'Config file'));
+        $inputDefinition->addOption(
+            new InputOption(Option::CONFIG, 'c', InputOption::VALUE_REQUIRED, 'Config file')
+        );
 
         return $inputDefinition;
     }

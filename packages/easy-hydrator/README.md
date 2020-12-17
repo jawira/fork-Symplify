@@ -7,6 +7,8 @@
 - constructor injection support
 - auto-resolving of `DateTimeInterface` string value
 - auto-retype based on param type declarations
+- nested objects support
+- customizable objects creation
 - cached
 
 ## Install
@@ -18,10 +20,11 @@ composer require symplify/easy-hydrator
 Add to `config/bundles.php`:
 
 ```php
-declare(strict_types=1);
-
 return [
     Symplify\EasyHydrator\EasyHydratorBundle::class => [
+        'all' => true,
+    ],
+    Symplify\SimplePhpDocParser\Bundle\SimplePhpDocParserBundle::class => [
         'all' => true,
     ],
 ];
@@ -32,10 +35,6 @@ return [
 Having value object with constructor injection:
 
 ```php
-<?php
-
-declare(strict_types=1);
-
 namespace App\ValueObject;
 
 use DateTimeInterface;
@@ -75,10 +74,6 @@ final class Person
 Use hydrator with array like this:
 
 ```php
-<?php
-
-declare(strict_types=1);
-
 namespace App\Repository;
 
 use App\ValueObject\Person;
@@ -116,8 +111,6 @@ final class HumanRepository
 This is how you hydrate 1 item:
 
 ```php
-<?php
-
 $singlePersonAsArray = [
     'name' => 'Tom',
     // will be retyped to int
@@ -133,8 +126,6 @@ $person = $this->arrayToValueObjectHydrator->hydrateArray($singlePersonAsArray, 
 But how can we hydrate multiple items?
 
 ```php
-declare(strict_types=1);
-
 $manyPersonsAsArray = [];
 $manyPersonsAsArray[] = [
     'name' => 'Tom',
@@ -155,3 +146,54 @@ $manyPersonsAsArray[] = [
 /** @var Person[] $persons */
 $persons = $this->arrayToValueObjectHydrator->hydrateArrays($manyPersonsAsArray, Person::class);
 ```
+
+### Optionable values
+
+If object has optional parameters, and some of their values are not provided in data, default value is used in the hydrated object.
+
+```php
+class MyObject
+{
+    private string $foo;
+
+    private string $bar;
+
+    public function __construct(string $foo, string $bar = 'bar')
+    {
+        $this->foo = $foo;
+        $this->bar = $bar;
+    }
+
+    public function getFoo(): string
+    {
+        return $this->foo;
+    }
+
+    public function getBar(): string
+    {
+        return $this->bar;
+    }
+}
+
+$data = [
+    'foo' => 'foo',
+];
+
+$object = $this->arrayToValueObjectHydrator->hydrateArray($data, MyObject::class);
+// bar
+$object->getBar();
+```
+
+### Missing constructor data
+
+When not provided data for required constructor parameter, `Symplify\EasyHydrator\Exception\MissingDataException` is thrown.
+
+<br>
+
+## Report Issues
+
+In case you are experiencing a bug or want to request a new feature head over to the [Symplify monorepo issue tracker](https://github.com/symplify/symplify/issues)
+
+## Contribute
+
+The sources of this package are contained in the Symplify monorepo. We welcome contributions for this package on [symplify/symplify](https://github.com/symplify/symplify).

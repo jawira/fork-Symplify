@@ -11,10 +11,8 @@ composer require symplify/console-color-diff
 Add to `config/bundles.php`:
 
 ```php
-declare(strict_types=1);
-
 return [
-    Symplify\ConsoleColorDiff\ConsoleColorDiffBundle::class => [
+    Symplify\ConsoleColorDiff\Bundle\ConsoleColorDiffBundle::class => [
         'all' => true,
     ],
 ];
@@ -23,10 +21,6 @@ return [
 ## Usage
 
 ```php
-<?php
-
-declare(strict_types=1);
-
 namespace App;
 
 use Symplify\ConsoleColorDiff\Console\Output\ConsoleDiffer;
@@ -51,6 +45,12 @@ class SomeCommand
 }
 ```
 
-## Contributing
+<br>
 
-Open an [issue](https://github.com/symplify/symplify/issues) or send a [pull-request](https://github.com/symplify/symplify/pulls) to main repository.
+## Report Issues
+
+In case you are experiencing a bug or want to request a new feature head over to the [Symplify monorepo issue tracker](https://github.com/symplify/symplify/issues)
+
+## Contribute
+
+The sources of this package are contained in the Symplify monorepo. We welcome contributions for this package on [symplify/symplify](https://github.com/symplify/symplify).

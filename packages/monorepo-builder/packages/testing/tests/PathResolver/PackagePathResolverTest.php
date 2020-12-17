@@ -6,7 +6,7 @@ namespace Symplify\MonorepoBuilder\Testing\Tests\PathResolver;
 
 use Symplify\MonorepoBuilder\HttpKernel\MonorepoBuilderKernel;
 use Symplify\MonorepoBuilder\Testing\PathResolver\PackagePathResolver;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 use Symplify\SmartFileSystem\SmartFileInfo;
 
 final class PackagePathResolverTest extends AbstractKernelTestCase
@@ -19,7 +19,7 @@ final class PackagePathResolverTest extends AbstractKernelTestCase
     protected function setUp(): void
     {
         $this->bootKernel(MonorepoBuilderKernel::class);
-        $this->packagePathResolver = self::$container->get(PackagePathResolver::class);
+        $this->packagePathResolver = $this->getService(PackagePathResolver::class);
     }
 
     public function test(): void

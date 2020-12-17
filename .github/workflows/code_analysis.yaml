@@ -6,6 +6,10 @@ on:
         branches:
             - master
 
+env:
+    # see https://github.com/composer/composer/issues/9368#issuecomment-718112361
+    COMPOSER_ROOT_VERSION: "dev-master"
+
 jobs:
     code_analysis:
         strategy:
@@ -13,33 +17,26 @@ jobs:
             matrix:
                 actions:
                     -
-                        name: Coding Standard
-                        run: 'composer check-cs'
-
-                    -
-                        name: Coding Standard README Sync
-                        run: 'php ci/check_coding_standard_readme_sync.php'
-
-                    -
-                        name: Validate Monorepo
-                        run: 'packages/monorepo-builder/bin/monorepo-builder validate'
-
-                    -
                         name: PHPStan
                         run: composer phpstan
 
                     -
-                        name: Rector CI
-                        run: composer rector
+                        name: Check for Git Conflicts
+                        run: packages/easy-ci/bin/easy-ci check-conflicts .
+
+                    -
+                        name: Composer Validate
+                        run: composer validate --strict
 
                     -
                         name: Binary File Run
                         run: |
                             # test run bin files
-                            packages/autodiscovery/bin/autodiscovery --ansi
                             packages/easy-coding-standard/bin/ecs --ansi
                             packages/changelog-linker/bin/changelog-linker --ansi
                             packages/monorepo-builder/bin/monorepo-builder --ansi
+                            packages/easy-coding-standard/bin/ecs --ansi
+                            # packages/rule-doc-generator/bin/rule-doc-generator --ansi
 
                             # test "check" options
                             packages/easy-coding-standard/bin/ecs check packages/changelog-linker/src --no-progress-bar --no-error-table --clear-cache --ansi
@@ -50,11 +47,12 @@ jobs:
         steps:
             -   uses: actions/checkout@v2
             # see https://github.com/shivammathur/setup-php
-            -   uses: shivammathur/setup-php@v1
+            -   uses: shivammathur/setup-php@v2
                 with:
-                    php-version: 7.4
+                    php-version: 8.0
                     coverage: none
 
-            -   run: composer install --no-progress
+            # composer install cache - https://github.com/ramsey/composer-install
+            -   uses: "ramsey/composer-install@v1"
 
             -   run: ${{ matrix.actions.run }}

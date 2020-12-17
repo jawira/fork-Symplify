@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Symplify\MonorepoBuilder\Testing\PackageDependency;
 
+use Symplify\ComposerJsonManipulator\ValueObject\ComposerJsonSection;
 use Symplify\MonorepoBuilder\Package\PackageNamesProvider;
-use Symplify\MonorepoBuilder\ValueObject\Section;
 
 final class UsedPackagesResolver
 {
@@ -27,12 +27,13 @@ final class UsedPackagesResolver
     {
         $usedPackageNames = [];
 
-        foreach ([Section::REQUIRE, Section::REQUIRE_DEV] as $section) {
+        foreach ([ComposerJsonSection::REQUIRE, ComposerJsonSection::REQUIRE_DEV] as $section) {
             if (! isset($packageComposerJson[$section])) {
                 continue;
             }
 
-            foreach (array_keys($packageComposerJson[$section]) as $packageName) {
+            $sectionKeys = array_keys($packageComposerJson[$section]);
+            foreach ($sectionKeys as $packageName) {
                 if (! in_array($packageName, $this->packageNamesProvider->provide(), true)) {
                     continue;
                 }

@@ -6,15 +6,20 @@ namespace Symplify\EasyCodingStandard\FixerRunner\Application;
 
 use PhpCsFixer\Differ\DifferInterface;
 use PhpCsFixer\Fixer\FixerInterface;
+use PhpCsFixer\Fixer\FunctionNotation\VoidReturnFixer;
+use PhpCsFixer\Fixer\NamespaceNotation\SingleBlankLineBeforeNamespaceFixer;
+use PhpCsFixer\Fixer\PhpTag\BlankLineAfterOpeningTagFixer;
+use PhpCsFixer\Fixer\Strict\DeclareStrictTypesFixer;
 use PhpCsFixer\Fixer\Whitespace\SingleBlankLineAtEofFixer;
 use PhpCsFixer\Tokenizer\Tokens;
+use Symplify\CodingStandard\Fixer\Commenting\RemoveCommentedCodeFixer;
 use Symplify\EasyCodingStandard\Application\AbstractFileProcessor;
 use Symplify\EasyCodingStandard\Configuration\Configuration;
 use Symplify\EasyCodingStandard\Console\Style\EasyCodingStandardStyle;
 use Symplify\EasyCodingStandard\Error\ErrorAndDiffCollector;
 use Symplify\EasyCodingStandard\FixerRunner\Exception\Application\FixerFailedException;
 use Symplify\EasyCodingStandard\FixerRunner\Parser\FileToTokensParser;
-use Symplify\EasyCodingStandard\Skipper;
+use Symplify\Skipper\Skipper\Skipper;
 use Symplify\SmartFileSystem\SmartFileInfo;
 use Symplify\SmartFileSystem\SmartFileSystem;
 use Throwable;
@@ -24,6 +29,18 @@ use Throwable;
  */
 final class FixerFileProcessor extends AbstractFileProcessor
 {
+    /**
+     * @var string[]
+     */
+    private const MARKDOWN_EXCLUDED_FIXERS = [
+        VoidReturnFixer::class,
+        DeclareStrictTypesFixer::class,
+        SingleBlankLineBeforeNamespaceFixer::class,
+        BlankLineAfterOpeningTagFixer::class,
+        SingleBlankLineAtEofFixer::class,
+        RemoveCommentedCodeFixer::class,
+    ];
+
     /**
      * @var class-string[]
      */
@@ -187,7 +204,7 @@ final class FixerFileProcessor extends AbstractFileProcessor
 
     private function shouldSkip(SmartFileInfo $smartFileInfo, FixerInterface $fixer, Tokens $tokens): bool
     {
-        if ($this->skipper->shouldSkipCheckerAndFile($fixer, $smartFileInfo)) {
+        if ($this->skipper->shouldSkipElementAndFileInfo($fixer, $smartFileInfo)) {
             return true;
         }
 
@@ -207,6 +224,12 @@ final class FixerFileProcessor extends AbstractFileProcessor
             return false;
         }
 
-        return $fixer instanceof SingleBlankLineAtEofFixer;
+        foreach (self::MARKDOWN_EXCLUDED_FIXERS as $markdownExcludedFixer) {
+            if (is_a($fixer, $markdownExcludedFixer, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

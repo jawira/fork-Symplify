@@ -18,10 +18,10 @@ final class AppenderComposerJsonDecoratorTest extends AbstractComposerJsonDecora
 
     protected function setUp(): void
     {
-        $this->bootKernelWithConfigs(MonorepoBuilderKernel::class, [__DIR__ . '/Source/appending_config.yaml']);
+        $this->bootKernelWithConfigs(MonorepoBuilderKernel::class, [__DIR__ . '/Source/appending_config.php']);
 
-        $this->composerJsonFactory = self::$container->get(ComposerJsonFactory::class);
-        $this->appenderComposerJsonDecorator = self::$container->get(AppenderComposerJsonDecorator::class);
+        $this->composerJsonFactory = $this->getService(ComposerJsonFactory::class);
+        $this->appenderComposerJsonDecorator = $this->getService(AppenderComposerJsonDecorator::class);
     }
 
     public function test(): void

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 use PhpCsFixer\Fixer\Alias\EregToPregFixer;
@@ -67,7 +68,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             'scope' => 'namespaced',
             'strict' => true,
         ]]);
-    $services->set(NoAliasFunctionsFixer::class);
+    $services->set(NoAliasFunctionsFixer::class)
+        ->call('configure', [[
+            'sets' => ['@all'],
+        ]]);
     $services->set(NoHomoglyphNamesFixer::class);
     $services->set(NoUnneededFinalMethodFixer::class);
     $services->set(NoUnreachableDefaultArgumentValueFixer::class);

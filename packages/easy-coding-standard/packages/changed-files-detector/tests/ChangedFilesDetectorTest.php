@@ -6,7 +6,7 @@ namespace Symplify\EasyCodingStandard\ChangedFilesDetector\Tests;
 
 use Symplify\EasyCodingStandard\ChangedFilesDetector\ChangedFilesDetector;
 use Symplify\EasyCodingStandard\HttpKernel\EasyCodingStandardKernel;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 use Symplify\SmartFileSystem\SmartFileInfo;
 
 final class ChangedFilesDetectorTest extends AbstractKernelTestCase
@@ -27,9 +27,9 @@ final class ChangedFilesDetectorTest extends AbstractKernelTestCase
 
         $this->smartFileInfo = new SmartFileInfo(__DIR__ . '/ChangedFilesDetectorSource/OneClass.php');
 
-        $this->changedFilesDetector = self::$container->get(ChangedFilesDetector::class);
+        $this->changedFilesDetector = $this->getService(ChangedFilesDetector::class);
         $this->changedFilesDetector->changeConfigurationFile(
-            __DIR__ . '/ChangedFilesDetectorSource/easy-coding-standard.yml'
+            __DIR__ . '/ChangedFilesDetectorSource/easy-coding-standard.php'
         );
     }
 
@@ -52,7 +52,7 @@ final class ChangedFilesDetectorTest extends AbstractKernelTestCase
         $this->assertFileHasNotChanged($this->smartFileInfo);
 
         $this->changedFilesDetector->changeConfigurationFile(
-            __DIR__ . '/ChangedFilesDetectorSource/another-configuration.yml'
+            __DIR__ . '/ChangedFilesDetectorSource/another-configuration.php'
         );
 
         $this->assertFileHasChanged($this->smartFileInfo);

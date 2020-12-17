@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Symplify\MonorepoBuilder;
 
 use Symplify\ComposerJsonManipulator\FileSystem\JsonFileManager;
+use Symplify\ComposerJsonManipulator\ValueObject\ComposerJsonSection;
 use Symplify\MonorepoBuilder\Merge\Configuration\ModifyingComposerJsonProvider;
-use Symplify\MonorepoBuilder\ValueObject\Section;
+use Symplify\MonorepoBuilder\ValueObject\File;
 use Symplify\SmartFileSystem\SmartFileInfo;
 
 /**
@@ -17,17 +18,7 @@ final class VersionValidator
     /**
      * @var string[]
      */
-    private const SECTIONS = [Section::REQUIRE, Section::REQUIRE_DEV];
-
-    /**
-     * @var string
-     */
-    private const MONOREPO_BUILDER_YAML = 'monorepo-builder.yaml';
-
-    /**
-     * @var string
-     */
-    private const MONOREPO_BUILDER_PHP = 'monorepo-builder.php';
+    private const SECTIONS = [ComposerJsonSection::REQUIRE, ComposerJsonSection::REQUIRE_DEV];
 
     /**
      * @var JsonFileManager
@@ -65,7 +56,8 @@ final class VersionValidator
                 }
 
                 foreach ($json[$section] as $packageName => $packageVersion) {
-                    $packageVersionsPerFile[$packageName][$smartFileInfo->getPathname()] = $packageVersion;
+                    $filePath = $smartFileInfo->getRelativeFilePathFromCwd();
+                    $packageVersionsPerFile[$packageName][$filePath] = $packageVersion;
                 }
             }
         }
@@ -84,16 +76,14 @@ final class VersionValidator
             return $packageVersionsPerFile;
         }
 
-        $monorepoBuilderConfig = file_exists(self::MONOREPO_BUILDER_YAML)
-            ? self::MONOREPO_BUILDER_YAML
-            : self::MONOREPO_BUILDER_PHP;
-
-        foreach ($appendingComposerJson->getRequire() as $packageName => $packageVersion) {
-            $packageVersionsPerFile[$packageName][$monorepoBuilderConfig] = $packageVersion;
+        $requires = $appendingComposerJson->getRequire();
+        foreach ($requires as $packageName => $packageVersion) {
+            $packageVersionsPerFile[$packageName][File::CONFIG] = $packageVersion;
         }
 
-        foreach ($appendingComposerJson->getRequireDev() as $packageName => $packageVersion) {
-            $packageVersionsPerFile[$packageName][$monorepoBuilderConfig] = $packageVersion;
+        $requiredevs = $appendingComposerJson->getRequireDev();
+        foreach ($requiredevs as $packageName => $packageVersion) {
+            $packageVersionsPerFile[$packageName][File::CONFIG] = $packageVersion;
         }
 
         return $packageVersionsPerFile;

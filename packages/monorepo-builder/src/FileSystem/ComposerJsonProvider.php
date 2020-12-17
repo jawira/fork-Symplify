@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Symplify\MonorepoBuilder\FileSystem;
 
+use Symplify\ComposerJsonManipulator\ComposerJsonFactory;
 use Symplify\ComposerJsonManipulator\FileSystem\JsonFileManager;
-use Symplify\MonorepoBuilder\Exception\ShouldNotHappenException;
+use Symplify\ComposerJsonManipulator\ValueObject\ComposerJson;
 use Symplify\MonorepoBuilder\Finder\PackageComposerFinder;
 use Symplify\SmartFileSystem\SmartFileInfo;
+use Symplify\SymplifyKernel\Exception\ShouldNotHappenException;
 
 final class ComposerJsonProvider
 {
@@ -21,10 +23,19 @@ final class ComposerJsonProvider
      */
     private $packageComposerFinder;
 
-    public function __construct(JsonFileManager $jsonFileManager, PackageComposerFinder $packageComposerFinder)
-    {
+    /**
+     * @var ComposerJsonFactory
+     */
+    private $composerJsonFactory;
+
+    public function __construct(
+        JsonFileManager $jsonFileManager,
+        PackageComposerFinder $packageComposerFinder,
+        ComposerJsonFactory $composerJsonFactory
+    ) {
         $this->jsonFileManager = $jsonFileManager;
         $this->packageComposerFinder = $packageComposerFinder;
+        $this->composerJsonFactory = $composerJsonFactory;
     }
 
     public function getRootFileInfo(): SmartFileInfo
@@ -33,17 +44,9 @@ final class ComposerJsonProvider
     }
 
     /**
-     * @return mixed[]
-     */
-    public function getRootJson(): array
-    {
-        return $this->jsonFileManager->loadFromFilePath(getcwd() . '/composer.json');
-    }
-
-    /**
      * @return SmartFileInfo[]
      */
-    public function getPackagesFileInfos(): array
+    public function getPackagesComposerFileInfos(): array
     {
         return $this->packageComposerFinder->getPackageComposerFiles();
     }
@@ -53,12 +56,16 @@ final class ComposerJsonProvider
      */
     public function getRootAndPackageFileInfos(): array
     {
-        return array_merge($this->getPackagesFileInfos(), [$this->packageComposerFinder->getRootPackageComposerFile()]);
+        return array_merge(
+            $this->getPackagesComposerFileInfos(),
+            [$this->packageComposerFinder->getRootPackageComposerFile()]
+        );
     }
 
-    public function getPackageByName(string $packageName): SmartFileInfo
+    public function getPackageFileInfoByName(string $packageName): SmartFileInfo
     {
-        foreach ($this->packageComposerFinder->getPackageComposerFiles() as $packageComposerFile) {
+        $packageComposerFiles = $this->packageComposerFinder->getPackageComposerFiles();
+        foreach ($packageComposerFiles as $packageComposerFile) {
             $json = $this->jsonFileManager->loadFromFileInfo($packageComposerFile);
             if (! isset($json['name'])) {
                 continue;
@@ -72,5 +79,10 @@ final class ComposerJsonProvider
         }
 
         throw new ShouldNotHappenException();
+    }
+
+    public function getRootComposerJson(): ComposerJson
+    {
+        return $this->composerJsonFactory->createFromFileInfo($this->getRootFileInfo());
     }
 }

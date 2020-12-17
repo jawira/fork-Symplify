@@ -84,7 +84,7 @@ final class ConsoleOutputFormatter implements OutputFormatterInterface
             $this->easyCodingStandardStyle->writeln($fileDiff->getDiffConsoleFormatted());
             $this->easyCodingStandardStyle->newLine();
 
-            $this->easyCodingStandardStyle->writeln('Applied checkers:');
+            $this->easyCodingStandardStyle->writeln('<options=underscore>Applied checkers:</>');
             $this->easyCodingStandardStyle->newLine();
             $this->easyCodingStandardStyle->listing($fileDiff->getAppliedCheckers());
         }
@@ -123,6 +123,13 @@ final class ConsoleOutputFormatter implements OutputFormatterInterface
                 $this->easyCodingStandardStyle->newLine();
                 $this->easyCodingStandardStyle->printErrors($errors);
             }
+        }
+
+        $systemErrors = $errorAndDiffResult->getSystemErrors();
+        foreach ($systemErrors as $systemError) {
+            $this->easyCodingStandardStyle->newLine();
+            $this->easyCodingStandardStyle->writeln($systemError->getFileWithLine());
+            $this->easyCodingStandardStyle->warning($systemError->getMessage());
         }
 
         $this->printErrorMessageFromErrorCounts(

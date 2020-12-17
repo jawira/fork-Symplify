@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Symplify\SymfonyStaticDumper\Tests\FileSystem;
 
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 use Symplify\SmartFileSystem\SmartFileSystem;
 use Symplify\SymfonyStaticDumper\FileSystem\AssetsCopier;
 use Symplify\SymfonyStaticDumper\Tests\TestProject\HttpKernel\TestSymfonyStaticDumperKernel;
@@ -20,7 +20,7 @@ final class AssetsCopierTest extends AbstractKernelTestCase
     {
         $this->bootKernel(TestSymfonyStaticDumperKernel::class);
 
-        $this->assetsCopier = self::$container->get(AssetsCopier::class);
+        $this->assetsCopier = $this->getService(AssetsCopier::class);
     }
 
     protected function tearDown(): void

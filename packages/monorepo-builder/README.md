@@ -49,12 +49,6 @@ vendor/bin/monorepo-builder merge
 Typical location for packages is `/packages`. But what if you have different naming or extra `/projects` directory?
 
 ```php
-<?php
-
-// monorepo-builder.php
-
-declare(strict_types=1);
-
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symplify\MonorepoBuilder\ValueObject\Option;
 
@@ -136,12 +130,6 @@ This will add alias `3.1-dev` to `composer.json` in each package.
 If you prefer [`3.1.x-dev`](https://getcomposer.org/doc/articles/aliases.md#branch-alias) over default `3.1-dev`, you can configure it:
 
 ```php
-<?php
-
-// monorepo-builder.php
-
-declare(strict_types=1);
-
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symplify\MonorepoBuilder\ValueObject\Option;
 
@@ -154,97 +142,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
 ### 5. Split Directories to Git Repositories
 
-Classic use case for monorepo is to synchronize last tag and the `master` branch to allow testing of `@dev` version.
+Thanks to GitHub Actions, this was never simpler to set up. Use [symplify/github-action-monorepo-split](https://github.com/symplify/github-action-monorepo-split).
 
-```php
-<?php
-
-// monorepo-builder.php
-
-declare(strict_types=1);
-
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symplify\MonorepoBuilder\ValueObject\Option;
-
-return static function (ContainerConfigurator $containerConfigurator): void {
-    $parameters = $containerConfigurator->parameters();
-    $parameters->set(Option::DIRECTORIES_TO_REPOSITORIES, [
-        __DIR__ . '/packages/package-builder' => 'git@github.com:symplify/package-builder.git',
-        __DIR__ . '/packagages/monorepo-builder' => 'git@github.com:symplify/monorepo-builder.git',
-        __DIR__ . '/packagages/coding-standard' => 'git@github.com:symplify/coding-standard.git',
-    ]);
-};
-```
-
-Or even simpler:
-
-```php
-<?php
-
-// monorepo-builder.php
-
-declare(strict_types=1);
-
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symplify\MonorepoBuilder\ValueObject\Option;
-
-return static function (ContainerConfigurator $containerConfigurator): void {
-    $parameters = $containerConfigurator->parameters();
-    $parameters->set(Option::DIRECTORIES_TO_REPOSITORIES, [
-        __DIR__ . '/packages/*' => 'git@github.com:symplify/*.git',
-    ]);
-};
-```
-
-And run by:
-
-```bash
-vendor/bin/monorepo-builder split
-```
-
-To speed up the process about 50-60 %, all repositories are synchronized in parallel.
-
-#### Testing split locally
-
-If you want to test on local machine, you can set local targets by creating bare repositories:
-
-```bash
-mkdir -p [target/path.git]
-cd [target/path.git]
-git init --bare
-#        ^^^^^^ bare!!!
-```
-
-Then you can set the target using `file://` prefix for absolute path:
-
-```php
-<?php
-
-// monorepo-builder.php
-
-declare(strict_types=1);
-
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symplify\MonorepoBuilder\ValueObject\Option;
-
-return static function (ContainerConfigurator $containerConfigurator): void {
-    $parameters = $containerConfigurator->parameters();
-    $parameters->set(Option::DIRECTORIES_TO_REPOSITORIES, [
-        __DIR__ . '/packages/package-builder' => 'file:///home/developer/git/package-builder.git',
-        __DIR__ . '/packagages/monorepo-builder' => 'file:///home/developer/git/monorepo-builder.git',
-    ]);
-};
-```
-
-After that you can test the result:
-
-```bash
-vendor/bin/monorepo-builder split
-cd /tmp
-git clone /home/developer/git/package-builder.git
-cd package-builder
-git log
-```
+How to configure it? See our local setup at [.github/workflows/split_monorepo.yaml](https://github.com/symplify/symplify/blob/6f24c4e2e38de76ab09a4dceb28d48672296bfd2/.github/workflows/split_monorepo.yaml)
 
 ### 6. Release Flow
 
@@ -285,12 +185,6 @@ There is set of few default release workers - classes that implement `Symplify\M
 You need to register them as services. Feel free to start with default ones:
 
 ```php
-<?php
-
-// monorepo-builder.php
-
-declare(strict_types=1);
-
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -311,6 +205,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 };
 ```
 
-## Contributing
+<br>
 
-Open an [issue](https://github.com/symplify/symplify/issues) or send a [pull-request](https://github.com/symplify/symplify/pulls) to main repository.
+## Report Issues
+
+In case you are experiencing a bug or want to request a new feature head over to the [Symplify monorepo issue tracker](https://github.com/symplify/symplify/issues)
+
+## Contribute
+
+The sources of this package are contained in the Symplify monorepo. We welcome contributions for this package on [symplify/symplify](https://github.com/symplify/symplify).

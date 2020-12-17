@@ -7,10 +7,10 @@ namespace Symplify\EasyHydrator\Tests;
 use Symplify\EasyHydrator\ArrayToValueObjectHydrator;
 use Symplify\EasyHydrator\Tests\Fixture\TypedProperty;
 use Symplify\EasyHydrator\Tests\HttpKernel\EasyHydratorTestKernel;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 
 /**
- * @requires PHP >= 7.4
+ * @requires PHP 7.4
  */
 final class TypedPropertiesTest extends AbstractKernelTestCase
 {
@@ -23,7 +23,7 @@ final class TypedPropertiesTest extends AbstractKernelTestCase
     {
         $this->bootKernel(EasyHydratorTestKernel::class);
 
-        $this->arrayToValueObjectHydrator = self::$container->get(ArrayToValueObjectHydrator::class);
+        $this->arrayToValueObjectHydrator = $this->getService(ArrayToValueObjectHydrator::class);
     }
 
     public function test(): void

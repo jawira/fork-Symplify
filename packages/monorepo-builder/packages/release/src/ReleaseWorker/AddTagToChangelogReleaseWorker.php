@@ -14,6 +14,7 @@ final class AddTagToChangelogReleaseWorker implements ReleaseWorkerInterface
 {
     /**
      * @var string
+     * @see https://regex101.com/r/5KOvEb/1
      */
     private const UNRELEASED_HEADLINE_REGEX = '#\#\# Unreleased#';
 
@@ -55,6 +56,7 @@ final class AddTagToChangelogReleaseWorker implements ReleaseWorkerInterface
 
     private function createNewHeadline(Version $version): string
     {
-        return $version->getVersionString() . ' - ' . (new DateTime())->format('Y-m-d');
+        $dateTime = new DateTime();
+        return $version->getVersionString() . ' - ' . $dateTime->format('Y-m-d');
     }
 }

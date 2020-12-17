@@ -13,8 +13,6 @@ composer require symplify/autowire-array-parameter
 ### 1. Register Compiler Pass in kernel
 
 ```php
-<?php declare(strict_types=1);
-
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel;
 use Symplify\PackageBuilder\DependencyInjection\CompilerPass\AutowireArrayParameterCompilerPass;
@@ -40,8 +38,6 @@ class AppKernel extends Kernel
 This feature surpasses YAML-defined, tag-based or CompilerPass-based collectors in minimalistic way:
 
 ```php
-<?php declare(strict_types=1);
-
 class Application
 {
     /**
@@ -61,3 +57,12 @@ class Application
 }
 ```
 
+<br>
+
+## Report Issues
+
+In case you are experiencing a bug or want to request a new feature head over to the [Symplify monorepo issue tracker](https://github.com/symplify/symplify/issues)
+
+## Contribute
+
+The sources of this package are contained in the Symplify monorepo. We welcome contributions for this package on [symplify/symplify](https://github.com/symplify/symplify).

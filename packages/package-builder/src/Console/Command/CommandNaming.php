@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Symplify\PackageBuilder\Console\Command;
 
 use Nette\Utils\Strings;
+use Symfony\Component\Console\Command\Command;
 
 /**
  * @see \Symplify\PackageBuilder\Tests\Console\Command\CommandNamingTest
@@ -13,8 +14,20 @@ final class CommandNaming
 {
     /**
      * @var string
+     * @see https://regex101.com/r/DfCWPx/1
      */
     private const BIG_LETTER_REGEX = '#[A-Z]#';
+
+    /**
+     * Converts:
+     *  "SomeClass\SomeSuperCommand" → "some-super"
+     *  "SomeClass\SOMESuperCommand" → "some-super"
+     */
+    public function resolveFromCommand(Command $command): string
+    {
+        $commandClass = get_class($command);
+        return self::classToName($commandClass);
+    }
 
     /**
      * Converts:
@@ -43,11 +56,11 @@ final class CommandNaming
         });
     }
 
-    private static function getShortClassName(string $class): ?string
+    private static function getShortClassName(string $class): string
     {
         $classParts = explode('\\', $class);
 
-        return array_pop($classParts);
+        return (string) array_pop($classParts);
     }
 
     private static function isFollowedByUpperCaseLetterOrNothing(string $string, int $position): bool

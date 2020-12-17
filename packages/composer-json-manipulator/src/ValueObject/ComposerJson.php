@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Symplify\ComposerJsonManipulator\ValueObject;
 
-use Composer\Json\JsonManipulator;
-use Symplify\PackageBuilder\Reflection\PrivatesCaller;
+use Nette\Utils\Arrays;
+use Nette\Utils\Strings;
+use Symplify\ComposerJsonManipulator\Sorter\ComposerPackageSorter;
 use Symplify\SmartFileSystem\SmartFileInfo;
+use Symplify\SymplifyKernel\Exception\ShouldNotHappenException;
 
 final class ComposerJson
 {
@@ -95,6 +97,36 @@ final class ComposerJson
      */
     private $fileInfo;
 
+    /**
+     * @var ComposerPackageSorter
+     */
+    private $composerPackageSorter;
+
+    /**
+     * @var mixed[]
+     */
+    private $conflicting = [];
+
+    /**
+     * @var mixed[]
+     */
+    private $bin = [];
+
+    /**
+     * @var string|null
+     */
+    private $type;
+
+    /**
+     * @var mixed[]
+     */
+    private $authors = [];
+
+    public function __construct()
+    {
+        $this->composerPackageSorter = new ComposerPackageSorter();
+    }
+
     public function setOriginalFileInfo(SmartFileInfo $fileInfo): void
     {
         $this->fileInfo = $fileInfo;
@@ -105,14 +137,17 @@ final class ComposerJson
         $this->name = $name;
     }
 
+    public function setType(string $type): void
+    {
+        $this->type = $type;
+    }
+
     /**
      * @param mixed[] $require
      */
     public function setRequire(array $require): void
     {
-        $require = $this->sortPackages($require);
-
-        $this->require = $require;
+        $this->require = $this->composerPackageSorter->sortPackages($require);
     }
 
     /**
@@ -121,6 +156,25 @@ final class ComposerJson
     public function getRequire(): array
     {
         return $this->require;
+    }
+
+    public function getRequirePhpVersion(): ?string
+    {
+        return $this->require['php'] ?? null;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getRequirePhp(): array
+    {
+        $requiredPhpVersion = $this->require['php'] ?? null;
+        if ($requiredPhpVersion === null) {
+            return [];
+        }
+        return [
+            'php' => $requiredPhpVersion,
+        ];
     }
 
     /**
@@ -133,7 +187,7 @@ final class ComposerJson
 
     public function setRequireDev(array $requireDev): void
     {
-        $this->requireDev = $this->sortPackages($requireDev);
+        $this->requireDev = $this->composerPackageSorter->sortPackages($requireDev);
     }
 
     /**
@@ -158,6 +212,42 @@ final class ComposerJson
     public function getAutoload(): array
     {
         return $this->autoload;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getPsr4AndClassmapDirectories(): array
+    {
+        $psr4Directories = array_values($this->autoload['psr-4'] ?? []);
+        $classmapDirectories = $this->autoload['classmap'] ?? [];
+
+        return array_merge($psr4Directories, $classmapDirectories);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getAbsoluteAutoloadDirectories(): array
+    {
+        if ($this->fileInfo === null) {
+            throw new ShouldNotHappenException();
+        }
+
+        $autoloadDirectories = $this->getAutoloadDirectories();
+
+        $absoluteAutoloadDirectories = [];
+
+        foreach ($autoloadDirectories as $autoloadDirectory) {
+            if (is_file($autoloadDirectory)) {
+                // skip files
+                continue;
+            }
+
+            $absoluteAutoloadDirectories[] = $this->resolveExistingAutoloadDirectory($autoloadDirectory);
+        }
+
+        return $absoluteAutoloadDirectories;
     }
 
     /**
@@ -251,6 +341,25 @@ final class ComposerJson
         return $this->name;
     }
 
+    public function getVendorName(): ?string
+    {
+        if ($this->name === null) {
+            return null;
+        }
+
+        [$vendor] = explode('/', $this->name);
+        return $vendor;
+    }
+
+    public function getShortName(): ?string
+    {
+        if ($this->name === null) {
+            return null;
+        }
+
+        return Strings::after($this->name, '/', -1);
+    }
+
     /**
      * @return string[]
      */
@@ -287,61 +396,77 @@ final class ComposerJson
         $array = [];
 
         if ($this->name !== null) {
-            $array['name'] = $this->name;
+            $array[ComposerJsonSection::NAME] = $this->name;
         }
 
         if ($this->description !== null) {
-            $array['description'] = $this->description;
+            $array[ComposerJsonSection::DESCRIPTION] = $this->description;
         }
 
         if ($this->license !== null) {
-            $array['license'] = $this->license;
+            $array[ComposerJsonSection::LICENSE] = $this->license;
+        }
+
+        if ($this->authors !== null) {
+            $array[ComposerJsonSection::AUTHORS] = $this->authors;
+        }
+
+        if ($this->type !== null) {
+            $array[ComposerJsonSection::TYPE] = $this->type;
         }
 
         if ($this->require !== []) {
-            $array['require'] = $this->require;
+            $array[ComposerJsonSection::REQUIRE] = $this->require;
         }
 
         if ($this->requireDev !== []) {
-            $array['require-dev'] = $this->requireDev;
+            $array[ComposerJsonSection::REQUIRE_DEV] = $this->requireDev;
+        }
+
+        if ($this->conflicting !== []) {
+            $array[ComposerJsonSection::CONFLICTING] = $this->conflicting;
         }
 
         if ($this->autoload !== []) {
-            $array['autoload'] = $this->autoload;
+            $array[ComposerJsonSection::AUTOLOAD] = $this->autoload;
         }
 
         if ($this->autoloadDev !== []) {
-            $array['autoload-dev'] = $this->autoloadDev;
+            $array[ComposerJsonSection::AUTOLOAD_DEV] = $this->autoloadDev;
         }
 
         if ($this->repositories !== []) {
-            $array['repositories'] = $this->repositories;
+            $array[ComposerJsonSection::REPOSITORIES] = $this->repositories;
         }
 
         if ($this->extra !== []) {
-            $array['extra'] = $this->extra;
+            $array[ComposerJsonSection::EXTRA] = $this->extra;
+        }
+
+        if ($this->bin !== null) {
+            $array[ComposerJsonSection::BIN] = $this->bin;
         }
 
         if ($this->scripts !== []) {
-            $array['scripts'] = $this->scripts;
+            $array[ComposerJsonSection::SCRIPTS] = $this->scripts;
         }
 
         if ($this->config !== []) {
-            $array['config'] = $this->config;
+            $array[ComposerJsonSection::CONFIG] = $this->config;
         }
 
         if ($this->replace !== []) {
-            $array['replace'] = $this->replace;
+            $array[ComposerJsonSection::REPLACE] = $this->replace;
         }
 
         if ($this->minimumStability !== null) {
-            $array['minimum-stability'] = $this->minimumStability;
-            $this->moveValueToBack('minimum-stability');
+            $array[ComposerJsonSection::MINIMUM_STABILITY] = $this->minimumStability;
+            $this->moveValueToBack(ComposerJsonSection::MINIMUM_STABILITY);
         }
 
         if ($this->preferStable !== null) {
-            $array['prefer-stable'] = $this->preferStable;
-            $this->moveValueToBack('prefer-stable');
+            $array[ComposerJsonSection::PREFER_STABLE] = $this->preferStable;
+            $this->moveValueToBack(ComposerJsonSection::PREFER_STABLE);
         }
 
         return $this->sortItemsByOrderedListOfKeys($array, $this->orderedKeys);
@@ -400,6 +525,22 @@ final class ComposerJson
     }
 
     /**
+     * @param mixed[] $authors
+     */
+    public function setAuthors(array $authors): void
+    {
+        $this->authors = $authors;
+    }
+
+    /**
+     * @return mixed[] $authors
+     */
+    public function getAuthors(): array
+    {
+        return $this->authors;
+    }
+
+    /**
      * @api
      */
     public function hasPackage(string $packageName): bool
@@ -444,14 +585,65 @@ final class ComposerJson
     }
 
     /**
-     * @param string[] $packages
+     * @api
+     * @param mixed[] $conflicting
+     */
+    public function setConflicting(array $conflicting): void
+    {
+        $this->conflicting = $conflicting;
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function getConflicting(): array
+    {
+        return $this->conflicting;
+    }
+
+    /**
+     * @param mixed[] $bin
+     */
+    public function setBin(array $bin): void
+    {
+        $this->bin = $bin;
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function getBin(): array
+    {
+        return $this->bin;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    /**
      * @return string[]
      */
-    private function sortPackages(array $packages): array
+    private function getAutoloadDirectories(): array
     {
-        $privatesCaller = new PrivatesCaller();
+        $autoloadDirectories = array_merge(
+            $this->getPsr4AndClassmapDirectories(),
+            $this->getPsr4AndClassmapDevDirectories()
+        );
 
-        return $privatesCaller->callPrivateMethodWithReference(JsonManipulator::class, 'sortPackages', $packages);
+        return Arrays::flatten($autoloadDirectories);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getPsr4AndClassmapDevDirectories(): array
+    {
+        $psr4Directories = array_values($this->autoloadDev['psr-4'] ?? []);
+        $classmapDirectories = $this->autoloadDev['classmap'] ?? [];
+
+        return array_merge($psr4Directories, $classmapDirectories);
     }
 
     private function moveValueToBack(string $valueName): void
@@ -481,5 +673,26 @@ final class ComposerJson
         });
 
         return $contentItems;
+    }
+
+    private function resolveExistingAutoloadDirectory(string $autoloadDirectory): string
+    {
+        if ($this->fileInfo === null) {
+            throw new ShouldNotHappenException();
+        }
+
+        $filePathCandidates = [
+            $this->fileInfo->getPath() . DIRECTORY_SEPARATOR . $autoloadDirectory,
+            // mostly tests
+            getcwd() . DIRECTORY_SEPARATOR . $autoloadDirectory,
+        ];
+
+        foreach ($filePathCandidates as $filePathCandidate) {
+            if (file_exists($filePathCandidate)) {
+                return $filePathCandidate;
+            }
+        }
+
+        return $autoloadDirectory;
     }
 }

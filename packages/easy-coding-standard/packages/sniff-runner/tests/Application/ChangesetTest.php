@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Symplify\EasyCodingStandard\SniffRunner\Tests\Application;
 
-use Symfony\Component\Console\Output\OutputInterface;
-use Symplify\EasyCodingStandard\Console\Style\EasyCodingStandardStyle;
 use Symplify\EasyCodingStandard\HttpKernel\EasyCodingStandardKernel;
 use Symplify\EasyCodingStandard\SniffRunner\Application\SniffFileProcessor;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 use Symplify\SmartFileSystem\SmartFileInfo;
 
 final class ChangesetTest extends AbstractKernelTestCase
@@ -22,13 +20,10 @@ final class ChangesetTest extends AbstractKernelTestCase
     {
         static::bootKernelWithConfigs(
             EasyCodingStandardKernel::class,
-            [__DIR__ . '/FileProcessorSource/ReferenceUsedNamesOnlySniff/easy-coding-standard.yml']
+            [__DIR__ . '/FileProcessorSource/ReferenceUsedNamesOnlySniff/easy-coding-standard.php']
         );
 
-        $easyCodingStandardStyle = self::$container->get(EasyCodingStandardStyle::class);
-        $easyCodingStandardStyle->setVerbosity(OutputInterface::VERBOSITY_QUIET);
-
-        $this->sniffFileProcessor = self::$container->get(SniffFileProcessor::class);
+        $this->sniffFileProcessor = $this->getService(SniffFileProcessor::class);
     }
 
     public function testFileProvingNeedOfProperSupportOfChangesets(): void

@@ -1,0 +1,9 @@
+services:
+    -
+        class: Symplify\PHPStanRules\Rules\ForbiddenDependencyByTypeRule
+        tags: [phpstan.rules.rule]
+        arguments:
+            forbiddenTypes:
+                - Psr\Container\ContainerInterface
+
+    - Symplify\PHPStanRules\Naming\SimpleNameResolver

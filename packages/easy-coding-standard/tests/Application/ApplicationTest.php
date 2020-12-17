@@ -6,7 +6,7 @@ namespace Symplify\EasyCodingStandard\Tests\Application;
 
 use Symplify\EasyCodingStandard\Application\EasyCodingStandardApplication;
 use Symplify\EasyCodingStandard\HttpKernel\EasyCodingStandardKernel;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 
 final class ApplicationTest extends AbstractKernelTestCase
 {
@@ -19,7 +19,7 @@ final class ApplicationTest extends AbstractKernelTestCase
     {
         $this->bootKernel(EasyCodingStandardKernel::class);
 
-        $this->easyCodingStandardApplication = self::$container->get(EasyCodingStandardApplication::class);
+        $this->easyCodingStandardApplication = $this->getService(EasyCodingStandardApplication::class);
     }
 
     /**

@@ -19,10 +19,6 @@ composer require symplify/easy-coding-standard-tester --dev
 2. Provide files to `doTestFiles()` method
 
 ```php
-<?php
-
-declare(strict_types=1);
-
 namespace Your\CodingStandard\Tests\Fixer\YourFixer;
 
 use Iterator;
@@ -90,3 +86,13 @@ before
 ------
 after
 ```
+
+<br>
+
+## Report Issues
+
+In case you are experiencing a bug or want to request a new feature head over to the [Symplify monorepo issue tracker](https://github.com/symplify/symplify/issues)
+
+## Contribute
+
+The sources of this package are contained in the Symplify monorepo. We welcome contributions for this package on [symplify/symplify](https://github.com/symplify/symplify).

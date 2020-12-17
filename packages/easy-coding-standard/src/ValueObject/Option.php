@@ -9,11 +9,6 @@ class Option
     /**
      * @var string
      */
-    public const SOURCES = 'source';
-
-    /**
-     * @var string
-     */
     public const FIX = 'fix';
 
     /**
@@ -37,20 +32,10 @@ class Option
     public const OUTPUT_FORMAT = 'output-format';
 
     /**
+     * @api
      * @var string
      */
     public const SKIP = 'skip';
-
-    /**
-     * @var string
-     */
-    public const EXCLUDE_PATHS = 'exclude_paths';
-
-    /**
-     * @var string
-     * @deprecated Use self::EXCLUDE_PATHS
-     */
-    public const EXCLUDE_FILES = 'exclude_files';
 
     /**
      * @var string
@@ -63,6 +48,7 @@ class Option
     public const PATHS = 'paths';
 
     /**
+     * @api
      * @var string
      */
     public const ONLY = 'only';
@@ -102,4 +88,24 @@ class Option
      * @var string
      */
     public const INDENTATION_TAB = 'tab';
+
+    /**
+     * @var string
+     */
+    public const MATCH_GIT_DIFF = 'match-git-diff';
+
+    /**
+     * @var string
+     */
+    public const XDEBUG = 'xdebug';
+
+    /**
+     * @var string
+     */
+    public const DEBUG = 'debug';
+
+    /**
+     * @var string
+     */
+    public const CONFIG = 'config';
 }

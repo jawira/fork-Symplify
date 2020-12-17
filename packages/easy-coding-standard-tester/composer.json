@@ -3,12 +3,13 @@
     "description": "The Best Way to Test Sniffs and Fixers",
     "license": "MIT",
     "require": {
-        "php": ">=7.2",
-        "phpunit/phpunit": "^8.5|^9.0",
-        "symplify/easy-coding-standard": "^8.4",
-        "symplify/package-builder": "^8.4",
-        "symplify/easy-testing": "^8.4",
-        "symplify/smart-file-system": "^8.4"
+        "php": ">=7.3",
+        "phpunit/phpunit": "^9.5",
+        "symplify/easy-coding-standard": "^9.1",
+        "symplify/skipper": "^9.1",
+        "symplify/package-builder": "^9.1",
+        "symplify/easy-testing": "^9.1",
+        "symplify/smart-file-system": "^9.1"
     },
     "autoload": {
         "psr-4": {
@@ -22,7 +23,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "8.4-dev"
+            "dev-master": "9.1-dev"
         }
     },
     "minimum-stability": "dev",

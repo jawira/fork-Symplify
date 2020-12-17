@@ -15,12 +15,6 @@ composer require symplify/set-config-resolver
 Use in CLI entry file `bin/<app-name>`, e.g. `bin/ecs` or `bin/rector`.
 
 ```php
-<?php
-
-# bin/ecs
-
-declare(strict_types=1);
-
 use Symfony\Component\Console\Input\ArgvInput;
 use Symplify\EasyCodingStandard\Set\EasyCodingStandardSetProvider;
 use Symplify\SetConfigResolver\SetAwareConfigResolver;
@@ -28,10 +22,8 @@ use Symplify\SetConfigResolver\SetAwareConfigResolver;
 $configs = [];
 
 // 1. --config CLI option or local fallback
-$configResolver = new SetAwareConfigResolver(new EasyCodingStandardSetProvider());
-$inputConfig = $configResolver->resolveFromInputWithFallback(new ArgvInput(), [
-    'ecs.yml', 'ecs.yaml', 'easy-coding-standard.yml', 'easy-coding-standard.yaml',
-]);
+$configResolver = new SetAwareConfigResolver(new EasyCodingStandardSetProvider(...));
+$inputConfig = $configResolver->resolveFromInputWithFallback(new ArgvInput(), ['ecs.php']);
 
 if ($inputConfig !== null) {
     $configs[] = $inputConfig;
@@ -81,3 +73,13 @@ parameters:
 ```
 
 All are equal :)
+
+<br>
+
+## Report Issues
+
+In case you are experiencing a bug or want to request a new feature head over to the [Symplify monorepo issue tracker](https://github.com/symplify/symplify/issues)
+
+## Contribute
+
+The sources of this package are contained in the Symplify monorepo. We welcome contributions for this package on [symplify/symplify](https://github.com/symplify/symplify).

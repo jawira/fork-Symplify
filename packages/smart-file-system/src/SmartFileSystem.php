@@ -13,6 +13,7 @@ final class SmartFileSystem extends Filesystem
 {
     /**
      * @var string
+     * @see https://regex101.com/r/tx6eyw/1
      */
     private const BEFORE_COLLON_REGEX = '#^\w+\(.*?\): #';
 
@@ -53,6 +54,6 @@ final class SmartFileSystem extends Filesystem
         $message = error_get_last()['message'] ?? '';
         $message = ini_get('html_errors') ? $this->htmlToText($message) : $message;
 
-        return Strings::replace($message, self::BEFORE_COLLON_REGEX);
+        return Strings::replace($message, self::BEFORE_COLLON_REGEX, '');
     }
 }

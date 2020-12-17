@@ -9,7 +9,7 @@ use Symplify\ChangelogLinker\ChangelogCleaner;
 use Symplify\ChangelogLinker\HttpKernel\ChangelogLinkerKernel;
 use Symplify\EasyTesting\DataProvider\StaticFixtureFinder;
 use Symplify\EasyTesting\StaticFixtureSplitter;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 use Symplify\SmartFileSystem\SmartFileInfo;
 
 final class ChangelogCleanerTest extends AbstractKernelTestCase
@@ -22,7 +22,7 @@ final class ChangelogCleanerTest extends AbstractKernelTestCase
     protected function setUp(): void
     {
         $this->bootKernel(ChangelogLinkerKernel::class);
-        $this->changelogCleaner = self::$container->get(ChangelogCleaner::class);
+        $this->changelogCleaner = $this->getService(ChangelogCleaner::class);
     }
 
     /**

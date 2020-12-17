@@ -6,7 +6,7 @@ namespace Symplify\MonorepoBuilder\Tests\DevMasterAliasUpdater;
 
 use Symplify\MonorepoBuilder\DevMasterAliasUpdater;
 use Symplify\MonorepoBuilder\HttpKernel\MonorepoBuilderKernel;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 use Symplify\SmartFileSystem\SmartFileInfo;
 use Symplify\SmartFileSystem\SmartFileSystem;
 
@@ -26,8 +26,8 @@ final class DevMasterAliasUpdaterTest extends AbstractKernelTestCase
     {
         $this->bootKernel(MonorepoBuilderKernel::class);
 
-        $this->devMasterAliasUpdater = self::$container->get(DevMasterAliasUpdater::class);
-        $this->smartFileSystem = self::$container->get(SmartFileSystem::class);
+        $this->devMasterAliasUpdater = $this->getService(DevMasterAliasUpdater::class);
+        $this->smartFileSystem = $this->getService(SmartFileSystem::class);
     }
 
     protected function tearDown(): void

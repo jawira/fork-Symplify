@@ -5,9 +5,12 @@ declare(strict_types=1);
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symplify\PackageBuilder\Console\Style\SymfonyStyleFactory;
+use Symplify\SmartFileSystem\FileSystemFilter;
+use Symplify\SmartFileSystem\FileSystemGuard;
 use Symplify\SmartFileSystem\Finder\FinderSanitizer;
+use Symplify\SmartFileSystem\Finder\SmartFinder;
 use Symplify\SmartFileSystem\SmartFileSystem;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
@@ -18,13 +21,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public();
 
     $services->load('Symplify\SymfonyStaticDumper\\', __DIR__ . '/../src')
-        ->exclude([__DIR__ . '/../src/Exception', __DIR__ . '/../src/ValueObject']);
+        ->exclude([__DIR__ . '/../src/ValueObject']);
 
     $services->set(FinderSanitizer::class);
 
     $services->set(SymfonyStyleFactory::class);
     $services->set(SymfonyStyle::class)
-        ->factory([ref(SymfonyStyleFactory::class), 'create']);
+        ->factory([service(SymfonyStyleFactory::class), 'create']);
 
     $services->set(SmartFileSystem::class);
+    $services->set(SmartFinder::class);
+    $services->set(FileSystemFilter::class);
+    $services->set(FileSystemGuard::class);
 };

@@ -15,12 +15,20 @@ use PhpCsFixer\WhitespacesFixerConfig;
 use SplFileInfo;
 use Symplify\CodingStandard\Fixer\AbstractSymplifyFixer;
 use Symplify\CodingStandard\TokenRunner\Analyzer\FixerAnalyzer\BlockFinder;
+use Symplify\RuleDocGenerator\Contract\DocumentedRuleInterface;
+use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
+use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
 /**
  * @see \Symplify\CodingStandard\Tests\Fixer\Spacing\MethodChainingNewlineFixer\MethodChainingNewlineFixerTest
  */
-final class MethodChainingNewlineFixer extends AbstractSymplifyFixer
+final class MethodChainingNewlineFixer extends AbstractSymplifyFixer implements DocumentedRuleInterface
 {
+    /**
+     * @var string
+     */
+    private const ERROR_MESSAGE = 'Each chain method call must be on own line';
+
     /**
      * @var WhitespacesFixerConfig
      */
@@ -31,6 +39,11 @@ final class MethodChainingNewlineFixer extends AbstractSymplifyFixer
      */
     private $blockFinder;
 
+    /**
+     * @var int
+     */
+    private $bracketNesting = 0;
+
     public function __construct(WhitespacesFixerConfig $whitespacesFixerConfig, BlockFinder $blockFinder)
     {
         $this->whitespacesFixerConfig = $whitespacesFixerConfig;
@@ -39,7 +52,7 @@ final class MethodChainingNewlineFixer extends AbstractSymplifyFixer
 
     public function getDefinition(): FixerDefinitionInterface
     {
-        return new FixerDefinition('Makes each chain method call on own line', []);
+        return new FixerDefinition(self::ERROR_MESSAGE, []);
     }
 
     public function getPriority(): int
@@ -68,6 +81,22 @@ final class MethodChainingNewlineFixer extends AbstractSymplifyFixer
             $tokens->ensureWhitespaceAtIndex($index, 0, $this->whitespacesFixerConfig->getLineEnding());
             ++$index;
         }
+    }
+
+    public function getRuleDefinition(): RuleDefinition
+    {
+        return new RuleDefinition(self::ERROR_MESSAGE, [
+            new CodeSample(
+                <<<'CODE_SAMPLE'
+$someClass->firstCall()->secondCall();
+CODE_SAMPLE
+                ,
+                <<<'CODE_SAMPLE'
+$someClass->firstCall()
+->secondCall();
+CODE_SAMPLE
+            ),
+        ]);
     }
 
     private function shouldPrefixNewline(Tokens $tokens, int $objectOperatorIndex): bool
@@ -110,6 +139,8 @@ final class MethodChainingNewlineFixer extends AbstractSymplifyFixer
      */
     private function isPartOfMethodCallOrArray(Tokens $tokens, int $position): bool
     {
+        $this->bracketNesting = 0;
+
         for ($i = $position; $i >= 0; --$i) {
             /** @var Token $currentToken */
             $currentToken = $tokens[$i];
@@ -119,16 +150,11 @@ final class MethodChainingNewlineFixer extends AbstractSymplifyFixer
                 return false;
             }
 
-            if ($currentToken->isGivenKind([CT::T_ARRAY_SQUARE_BRACE_OPEN, T_ARRAY])) {
+            if ($this->isBreakingChar($currentToken)) {
                 return true;
             }
 
-            if ($currentToken->getContent() === '(' || $currentToken->getContent() === '.') {
-                if ($position === $i + 1) {
-                    // skip ()
-                    continue;
-                }
-
+            if ($this->shouldBreakOnBracket($currentToken)) {
                 return true;
             }
         }
@@ -140,6 +166,7 @@ final class MethodChainingNewlineFixer extends AbstractSymplifyFixer
      * Matches e..g:
      * - return app()->some()
      * - app()->some()
+     * - (clone app)->some()
      */
     private function isPreceededByFuncCall(Tokens $tokens, int $position): bool
     {
@@ -147,19 +174,12 @@ final class MethodChainingNewlineFixer extends AbstractSymplifyFixer
             /** @var Token $currentToken */
             $currentToken = $tokens[$i];
 
+            if ($currentToken->getContent() === 'clone') {
+                return true;
+            }
+
             if ($currentToken->getContent() === '(') {
-                $previousToken = $this->getPreviousToken($tokens, $position);
-                if (! $previousToken->isGivenKind(T_STRING)) {
-                    return false;
-                }
-
-                $previousPreviousToken = $this->getPreviousToken($tokens, $position - 1);
-                if ($previousPreviousToken->getContent() === '{') {
-                    return true;
-                }
-
-                // is a function
-                return $previousPreviousToken->isGivenKind([T_RETURN, T_DOUBLE_COLON, T_OPEN_CURLY_BRACKET]);
+                return $this->doesContentBeforeBracketRequireNewline($tokens, $i);
             }
 
             if ($this->isNewlineToken($currentToken)) {
@@ -177,16 +197,6 @@ final class MethodChainingNewlineFixer extends AbstractSymplifyFixer
         }
 
         return Strings::contains($currentToken->getContent(), "\n");
-    }
-
-    private function getPreviousToken(Tokens $tokens, int $position): ?Token
-    {
-        $previousMeaningfulTokenPosition = $tokens->getPrevMeaningfulToken($position - 1);
-        if ($previousMeaningfulTokenPosition === null) {
-            return null;
-        }
-
-        return $tokens[$previousMeaningfulTokenPosition];
     }
 
     /**
@@ -224,5 +234,63 @@ final class MethodChainingNewlineFixer extends AbstractSymplifyFixer
 
         // all good, there is a newline
         return ! $tokens->isPartialCodeMultiline($position, $objectOperatorIndex);
+    }
+
+    private function isBreakingChar(Token $currentToken): bool
+    {
+        if ($currentToken->isGivenKind([CT::T_ARRAY_SQUARE_BRACE_OPEN, T_ARRAY, T_DOUBLE_COLON])) {
+            return true;
+        }
+
+        if ($currentToken->getContent() === '[') {
+            return true;
+        }
+
+        return $currentToken->getContent() === '.';
+    }
+
+    private function shouldBreakOnBracket(Token $token): bool
+    {
+        if ($token->getContent() === ')') {
+            --$this->bracketNesting;
+            return false;
+        }
+
+        if ($token->getContent() === '(') {
+            if ($this->bracketNesting !== 0) {
+                ++$this->bracketNesting;
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private function doesContentBeforeBracketRequireNewline(Tokens $tokens, int $i): bool
+    {
+        $previousMeaningfulTokenPosition = $tokens->getPrevNonWhitespace($i);
+        if ($previousMeaningfulTokenPosition === null) {
+            return false;
+        }
+
+        $previousToken = $tokens[$previousMeaningfulTokenPosition];
+        if (! $previousToken->isGivenKind(T_STRING)) {
+            return false;
+        }
+
+        $previousPreviousMeaningfulTokenPosition = $tokens->getPrevNonWhitespace($previousMeaningfulTokenPosition);
+        if ($previousPreviousMeaningfulTokenPosition === null) {
+            return false;
+        }
+
+        $previousPreviousToken = $tokens[$previousPreviousMeaningfulTokenPosition];
+        if ($previousPreviousToken->getContent() === '{') {
+            return true;
+        }
+
+        // is a function
+        return $previousPreviousToken->isGivenKind([T_RETURN, T_DOUBLE_COLON, T_OPEN_CURLY_BRACKET]);
     }
 }

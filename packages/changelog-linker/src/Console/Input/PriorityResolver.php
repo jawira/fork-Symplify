@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Symplify\ChangelogLinker\Console\Input;
 
 use Symfony\Component\Console\Input\InputInterface;
-use Symplify\ChangelogLinker\Configuration\Option;
+use Symplify\ChangelogLinker\ValueObject\Option;
 use Symplify\PackageBuilder\Reflection\PrivatesAccessor;
 
 final class PriorityResolver
@@ -34,7 +34,8 @@ final class PriorityResolver
             return null;
         }
 
-        foreach (array_keys($rawOptions) as $name) {
+        $names = array_keys($rawOptions);
+        foreach ($names as $name) {
             if ($name === Option::IN_PACKAGES) {
                 return 'packages';
             }

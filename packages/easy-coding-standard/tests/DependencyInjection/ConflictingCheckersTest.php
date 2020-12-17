@@ -6,7 +6,7 @@ namespace Symplify\EasyCodingStandard\Tests\DependencyInjection;
 
 use Symplify\EasyCodingStandard\Configuration\Exception\ConflictingCheckersLoadedException;
 use Symplify\EasyCodingStandard\HttpKernel\EasyCodingStandardKernel;
-use Symplify\PackageBuilder\Tests\AbstractKernelTestCase;
+use Symplify\PackageBuilder\Testing\AbstractKernelTestCase;
 
 final class ConflictingCheckersTest extends AbstractKernelTestCase
 {
@@ -16,7 +16,7 @@ final class ConflictingCheckersTest extends AbstractKernelTestCase
 
         $this->bootKernelWithConfigs(
             EasyCodingStandardKernel::class,
-            [__DIR__ . '/ConflictingCheckersSource/config.yml']
+            [__DIR__ . '/ConflictingCheckersSource/config.php']
         );
     }
 }

@@ -35,10 +35,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(MethodChainingIndentationFixer::class);
 
-    $services->set(ClassAttributesSeparationFixer::class)
-        ->call('configure', [[
-            'elements' => ['const', 'property', 'method'],
-        ]]);
+    // breaks on PHP 8
+    if (PHP_VERSION_ID < 80000) {
+        $services->set(ClassAttributesSeparationFixer::class)
+            ->call('configure', [[
+                'elements' => ['const', 'property', 'method'],
+            ]]);
+    }
 
     $services->set(ConcatSpaceFixer::class)
         ->call('configure', [[
@@ -54,8 +57,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(BinaryOperatorSpacesFixer::class)
         ->call('configure', [[
-            'align_double_arrow' => false,
-            'align_equals' => false,
+            'operators' => [
+                '=>' => 'single_space',
+                '=' => 'single_space'
+            ],
         ]]);
 
     $services->set(FunctionTypehintSpaceFixer::class);

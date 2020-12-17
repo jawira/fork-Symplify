@@ -6,13 +6,18 @@ namespace Symplify\EasyHydrator\Tests\HttpKernel;
 
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
-use Symfony\Component\HttpKernel\Kernel;
 use Symplify\EasyHydrator\EasyHydratorBundle;
+use Symplify\SimplePhpDocParser\Bundle\SimplePhpDocParserBundle;
+use Symplify\SymplifyKernel\Bundle\SymplifyKernelBundle;
+use Symplify\SymplifyKernel\HttpKernel\AbstractSymplifyKernel;
 
-final class EasyHydratorTestKernel extends Kernel
+final class EasyHydratorTestKernel extends AbstractSymplifyKernel
 {
     public function registerContainerConfiguration(LoaderInterface $loader): void
     {
+        $loader->load(__DIR__ . '/../config.php');
+
+        parent::registerContainerConfiguration($loader);
     }
 
     /**
@@ -20,16 +25,6 @@ final class EasyHydratorTestKernel extends Kernel
      */
     public function registerBundles(): iterable
     {
-        return [new EasyHydratorBundle()];
-    }
-
-    public function getCacheDir(): string
-    {
-        return sys_get_temp_dir() . '/eay_hydrator_test';
-    }
-
-    public function getLogDir(): string
-    {
-        return sys_get_temp_dir() . '/eay_hydrator_test_log';
+        return [new EasyHydratorBundle(), new SymplifyKernelBundle(), new SimplePhpDocParserBundle()];
     }
 }

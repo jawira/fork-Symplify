@@ -8,10 +8,11 @@ use Nette\Utils\Strings;
 use PHP_CodeSniffer\Sniffs\Sniff;
 use PhpCsFixer\Fixer\FixerInterface;
 use Symplify\EasyCodingStandard\ChangedFilesDetector\ChangedFilesDetector;
-use Symplify\EasyCodingStandard\Compiler\Exception\ShouldNotHappenException;
+use Symplify\EasyCodingStandard\Exception\NotSniffNorFixerException;
 use Symplify\EasyCodingStandard\SnippetFormatter\Provider\CurrentParentFileInfoProvider;
 use Symplify\EasyCodingStandard\ValueObject\Error\CodingStandardError;
 use Symplify\EasyCodingStandard\ValueObject\Error\FileDiff;
+use Symplify\EasyCodingStandard\ValueObject\Error\SystemError;
 use Symplify\SmartFileSystem\SmartFileInfo;
 
 final class ErrorAndDiffCollector
@@ -20,6 +21,11 @@ final class ErrorAndDiffCollector
      * @var CodingStandardError[]
      */
     private $codingStandardErrors = [];
+
+    /**
+     * @var SystemError[]
+     */
+    private $systemErrors = [];
 
     /**
      * @var FileDiff[]
@@ -75,12 +81,26 @@ final class ErrorAndDiffCollector
         $this->codingStandardErrors[] = $codingStandardError;
     }
 
+    public function addSystemErrorMessage(SmartFileInfo $smartFileInfo, int $line, string $message): void
+    {
+        $this->changedFilesDetector->invalidateFileInfo($smartFileInfo);
+        $this->systemErrors[] = new SystemError($line, $message, $smartFileInfo);
+    }
+
     /**
      * @return CodingStandardError[]
      */
     public function getErrors(): array
     {
         return $this->codingStandardErrors;
+    }
+
+    /**
+     * @return SystemError[]
+     */
+    public function getSystemErrors(): array
+    {
+        return $this->systemErrors;
     }
 
     /**
@@ -134,6 +154,6 @@ final class ErrorAndDiffCollector
         }
 
         $message = sprintf('Source class "%s" must be "%s" or "%s"', $sourceClass, FixerInterface::class, Sniff::class);
-        throw new ShouldNotHappenException($message);
+        throw new NotSniffNorFixerException($message);
     }
 }

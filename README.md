@@ -1,8 +1,8 @@
 <div align="center">
+    <h1>Symplify</h1>
     <img src="/docs/symplify.png?v=3">
+    <h2>Making Everyday PHP Development Simple</h2>
 </div>
-
-# Symplify - Making Everyday PHP Development Simple
 
 [![Coverage](https://img.shields.io/coveralls/symplify/symplify/master.svg?style=flat-square)](https://coveralls.io/github/symplify/symplify?branch=master)
 [![SonarCube](https://img.shields.io/badge/SonarCube_Debt-%3C3-brightgreen.svg?style=flat-square)](https://sonarcloud.io/dashboard?id=symplify_symplify)
@@ -18,149 +18,94 @@ In [this monorepo](https://www.tomasvotruba.com/blog/2019/10/28/all-you-always-w
 
 You'll find all packages in [`/packages`](/packages) directory. Here is a brief overview (tip: click on the package name to see its `README` with more detailed features):
 
-## Coding Standard Utils
+## Coding Standards
 
-### [Easy Coding Standard](https://github.com/symplify/easy-coding-standard)
+- [Easy Coding Standard](https://github.com/symplify/easy-coding-standard)
+- [Coding Standard](https://github.com/symplify/coding-standard)
+- [Easy Coding Standard Tester](https://github.com/symplify/easy-coding-standard-tester)
 
-[![Downloads](https://img.shields.io/packagist/dt/symplify/easy-coding-standard.svg?style=flat-square)](https://packagist.org/packages/symplify/easy-coding-standard/stats)
+## For Symfony
 
-The easiest way to start a coding standard in your project. Easy, simple and intuitive. Combines both [PHP-CS-Fixer](https://github.com/friendsofphp/php-cs-fixer) and [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer).
+- [Autodiscovery](https://github.com/symplify/autodiscovery)
+- [Autowire Array Parameter](https://github.com/symplify/autowire-array-parameter)
+- [Flex Loader](https://github.com/symplify/flex-loader)
+- [PHP Config Printer](https://github.com/symplify/php-config-printer)
+- [Symfony Route Usage](https://github.com/symplify/symfony-route-usage)
 
-<br>
+## For Package Development
 
-### [Coding Standard](https://github.com/symplify/coding-standard)
+- [Changelog Linker](https://github.com/symplify/changelog-linker)
+- [Monorepo Builder](https://github.com/symplify/monorepo-builder)
+- [Package Builder](https://github.com/symplify/package-builder)
+- [Smart File System](https://github.com/symplify/smart-file-system)
+- [Rule Doc Generator](https://github.com/symplify/rule-doc-generator)
+- [Skipper](https://github.com/symplify/skipper)
+- [Symplify Kernel](https://github.com/symplify/symplify-kernel)
+- [Package Scoper](https://github.com/symplify/package-scoper)
 
-[![Downloads](https://img.shields.io/packagist/dt/symplify/coding-standard.svg?style=flat-square)](https://packagist.org/packages/symplify/coding-standard/stats)
+## For CLI App Developers
 
-[Final interface](http://ocramius.github.io/blog/when-to-declare-classes-final/), [`::class` Constant](https://www.tomasvotruba.com/blog/2017/08/21/5-useful-rules-from-symplify-coding-standard/#3-class-constant-fixer) and other useful Checkers for [PHP-CS-Fixer](https://github.com/friendsofphp/php-cs-fixer) and [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer).
+- [Set Config Resolver](https://github.com/symplify/set-config-resolver)
+- [Console Color Diff](https://github.com/symplify/console-color-diff)
+- [Console Package Builder](https://github.com/symplify/console-package-builder)
 
-<br>
+## For Any Developer
 
-## Symfony Kernel and Dependency Injection on MDMA
+- [Markdown Diff](https://github.com/symplify/markdown-diff)
+- [Easy Hydrator](https://github.com/symplify/easy-hydrator)
+- [Easy Testing](https://github.com/symplify/easy-testing)
+- [Composer Json Manipulator](https://github.com/symplify/composer-json-manipulator)
+- [Symfony Static Dumper](https://github.com/symplify/symfony-static-dumper)
 
-### [Autodiscovery](https://github.com/symplify/autodiscovery)
+## For PHPStan Lovers
 
-[![Downloads](https://img.shields.io/packagist/dt/symplify/autodiscovery.svg?style=flat-square)](https://packagist.org/packages/symplify/autodiscovery/stats)
+- [PHPStan Rules](https://github.com/symplify/phpstan-rules)
+- [PHPStan Extensions](https://github.com/symplify/phpstan-extensions)
+- [PHPStan PHP Config](https://github.com/symplify/phpstan-php-config)
 
-Forget manual registration of translations, templates, mappings and routes in Symfony Application
+## For CI Keeping you Safe
 
-<br>
+- [Easy CI](https://github.com/symplify/easy-ci)
+- [Class Presence](https://github.com/symplify/class-presence)
+- [Template Checker](https://github.com/symplify/template-checker)
+- [Static Detector](https://github.com/symplify/static-detector)
 
-### [Flex Loader](https://github.com/symplify/flex-loader)
+## For Syntax Transformation
 
-[![Downloads](https://img.shields.io/packagist/dt/symplify/flex-loader.svg?style=flat-square)](https://packagist.org/packages/symplify/flex-loader/stats)
+- [Latte to TWIG Converter](https://github.com/symplify/latte-to-twig-converter)
+- [NEON to YAML Converter](https://github.com/symplify/neon-to-yaml-converter)
+- [PHPMD Decomposer](https://github.com/symplify/phpmd-decomposer)
+- [Sniffer Fixer to ECS Converter](https://github.com/symplify/sniffer-fixer-to-ecs-converter)
 
-Keep your Symfony Kernel slim again and let flex-loader load all the configs
+## For Upgrades
 
-<br>
-
-### [Autowire Array Parameter](https://github.com/symplify/autowire-array-parameter)
-
-[![Downloads](https://img.shields.io/packagist/dt/symplify/autowire-array-parameter.svg?style=flat-square)](https://packagist.org/packages/symplify/autowire-array-parameter/stats)
-
-Autowire Array Parameters for Symfony applications.
-
-<br>
-
-## Symfony Utils
-
-### [Package Builder](https://github.com/symplify/package-builder)
-
-[![Downloads](https://img.shields.io/packagist/dt/symplify/package-builder.svg?style=flat-square)](https://packagist.org/packages/symplify/package-builder/stats)
-
-Speed up your package DI Containers integration and Console apps to Symfony
-
-<br>
-
-### [Smart File System](https://github.com/symplify/smart-file-system)
-
-[![Downloads](https://img.shields.io/packagist/dt/symplify/smart-file-system.svg?style=flat-square)](https://packagist.org/packages/symplify/smart-file-system/stats)
-
-Making `SplFileInfo` smarter with methods you really need.
-
-<br>
-
-### [Easy Hydrator](https://github.com/symplify/easy-hydrator)
-
-[![Downloads](https://img.shields.io/packagist/dt/symplify/easy-hydrator.svg?style=flat-square)](https://packagist.org/packages/symplify/easy-hydrator/stats)
-
-Hydrate Arrays to Objects via `__construct` and PHP 7.4!
+- [PHPUnit Upgrader](https://github.com/symplify/phpunit-upgrader)
+- [PSR-4 Switcher](https://github.com/symplify/psr4-switcher)
+- [Vendor Patches](https://github.com/symplify/vendor-patches)
 
 <br>
-
-## Maintainer's Friend
-
-### [Changelog Linker](https://github.com/symplify/changelog-linker)
-
-[![Downloads](https://img.shields.io/packagist/dt/symplify/changelog-linker.svg?style=flat-square)](https://packagist.org/packages/symplify/changelog-linker/stats)
-
-Why write `CHANGELOG.md`, when you can generate it
-
-<br>
-
-### [Monorepo Builder](https://github.com/symplify/monorepo-builder)
-
-[![Downloads](https://img.shields.io/packagist/dt/symplify/monorepo-builder.svg?style=flat-square)](https://packagist.org/packages/symplify/monorepo-builder/stats)
-
-Validate, split, release and maintain Monorepo like a boss
-
-<br>
-
-### [Composer Json Manipulator](https://github.com/symplify/composer-json-manipulator)
-
-[![Downloads](https://img.shields.io/packagist/dt/symplify/composer-json-manipulator.svg?style=flat-square)](https://packagist.org/packages/symplify/composer-json-manipulator/stats)
-
-Manipulate composer.json with Beautiful Object API
-
-<br>
-
-## Static Sites
-
-### [Symfony Static Dumper](https://github.com/symplify/symfony-static-dumper)
-
-[![Downloads](https://img.shields.io/packagist/dt/symplify/symfony-static-dumper.svg?style=flat-square)](https://packagist.org/packages/symplify/changelog-linker/stats)
-
-Dump your Symfony app to HTML + CSS + JS only static website. Useful for deploy to Github Pages and other non-PHP static website hostings.
-
-<br>
-
-## CLI Utils
-
-### [Set Config Resolver](https://github.com/symplify/set-config-resolver)
-
-[![Downloads](https://img.shields.io/packagist/dt/symplify/set-config-resolver.svg?style=flat-square)](https://packagist.org/packages/symplify/set-config-resolver/stats)
-
-Loads configs to you with CLI --config, -c, --set, -s or sets parameter
-
-<br>
-
-## Install
-
-Go to particular package and get it via `composer require`.
 
 ## Contributing & Issues
 
 If you have issue and want to improve some package, put it all into this repository.
 
-Fork, clone your repository and install dependencies:
+Fork and clone your repository:
 
 ```bash
 git clone git@github.com:<your-name>/symplify.git
-cd Symplify
-composer update
+cd symplify
+composer install
 ```
 
 ### 3 Steps to Contribute
 
 - **1 feature per pull-request**
-- **New feature needs tests**
-- Tests and static analysis **must pass**:
+- **new feature must have tests**
+- tests and static analysis **must pass**:
 
     ```bash
-    composer complete-check
-
-    # coding standard issues fix with
-    composer fix-cs
+    vendor/bin/phpunit
+    composer phpstan
     ```
 
-We would be happy to merge your feature then.
+We would be happy to merge your feature then :+1:

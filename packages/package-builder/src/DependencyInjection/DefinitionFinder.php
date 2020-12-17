@@ -7,6 +7,7 @@ namespace Symplify\PackageBuilder\DependencyInjection;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symplify\PackageBuilder\Exception\DependencyInjection\DefinitionForTypeNotFoundException;
+use Throwable;
 
 /**
  * @see \Symplify\PackageBuilder\Tests\DependencyInjection\DefinitionFinderTest
@@ -19,9 +20,10 @@ final class DefinitionFinder
     public function findAllByType(ContainerBuilder $containerBuilder, string $type): array
     {
         $definitions = [];
-        foreach ($containerBuilder->getDefinitions() as $name => $definition) {
+        $containerBuilderDefinitions = $containerBuilder->getDefinitions();
+        foreach ($containerBuilderDefinitions as $name => $definition) {
             $class = $definition->getClass() ?: $name;
-            if (! is_string($class)) {
+            if (! $this->isClassExists($class)) {
                 continue;
             }
 
@@ -45,9 +47,10 @@ final class DefinitionFinder
 
     public function getByTypeIfExists(ContainerBuilder $containerBuilder, string $type): ?Definition
     {
-        foreach ($containerBuilder->getDefinitions() as $name => $definition) {
+        $containerBuilderDefinitions = $containerBuilder->getDefinitions();
+        foreach ($containerBuilderDefinitions as $name => $definition) {
             $class = $definition->getClass() ?: $name;
-            if (! is_string($class)) {
+            if (! $this->isClassExists($class)) {
                 continue;
             }
 
@@ -57,5 +60,14 @@ final class DefinitionFinder
         }
 
         return null;
+    }
+
+    private function isClassExists(?string $class): bool
+    {
+        try {
+            return is_string($class) && class_exists($class);
+        } catch (Throwable $throwable) {
+            return false;
+        }
     }
 }
